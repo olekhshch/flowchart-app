@@ -1,0 +1,12 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --main: rgb(127, 48, 176);
+    --sb-bg: rgb(93, 77, 134, 0.5);
+}
+.flex {
+    display: flex;
+}
