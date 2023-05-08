@@ -4,9 +4,30 @@
 }
 
 :root {
+    --sb-width: 300px;
+
     --main: rgb(127, 48, 176);
     --sb-bg: rgb(93, 77, 134, 0.5);
 }
+
+html {
+    overflow: hidden;
+}
+
 .flex {
     display: flex;
+}
+
+.flex-col {
+    display: flex;
+    flex-direction: column;
+}
+
+@keyframes from50to100opacity {
+    from {
+        opacity: 0.5;
+    }
+    to {
+        opacity: 1;
+    }
 }
