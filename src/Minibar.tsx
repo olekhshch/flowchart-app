@@ -7,9 +7,10 @@ const Minibar = () => {
 
 const StyledMinibar = styled.section`
   position: absolute;
-  bottom: 0;
+  z-index: 100;
   left: 0;
   right: 0;
+  bottom: 0;
   background-color: var(--main);
   color: white;
   height: 1.4em;

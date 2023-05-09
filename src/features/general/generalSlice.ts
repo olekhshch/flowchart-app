@@ -3,6 +3,8 @@ import { initialState } from "./initialState";
 
 export interface GeneralSettingsState {
   isSBCollapsed: boolean;
+  canvasSize: number;
+  canvasCoordinates: { left: number; top: number };
 }
 
 export const generalSlice = createSlice({
@@ -15,9 +17,13 @@ export const generalSlice = createSlice({
     closeSB: (state) => {
       state.isSBCollapsed = true;
     },
+    setCanvasCoordinates: (state, { payload: { newLeft, newTop } }) => {
+      state.canvasCoordinates.left = newLeft;
+      state.canvasCoordinates.top = newTop;
+    },
   },
 });
 
 export default generalSlice.reducer;
 
-export const { openSB, closeSB } = generalSlice.actions;
+export const { openSB, closeSB, setCanvasCoordinates } = generalSlice.actions;

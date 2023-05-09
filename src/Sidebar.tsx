@@ -76,6 +76,7 @@ const StyledSB = styled.aside`
 
 const Button = styled.button`
   position: absolute;
+  display: flex;
   z-index: 100;
   right: 20px;
   bottom: 40px;
@@ -87,13 +88,17 @@ const Button = styled.button`
   cursor: pointer;
   border-radius: 50%;
   animation: btnAppear 0.6s 0.8s forwards;
+  justify-content: center;
+  align-items: center;
 
   @keyframes btnAppear {
     from {
       opacity: 0;
+      rotate: -45deg;
     }
     to {
       opacity: 0.3;
+      rotate: 0;
     }
   }
 

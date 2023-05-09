@@ -1,15 +1,15 @@
 import React from "react";
 import "./app.css";
-import MainWindow from "./MainWindow";
 import Minibar from "./Minibar";
 import Sidebar from "./Sidebar";
 import styled from "styled-components";
+import Viewport from "./Viewport";
 
 const App = () => {
   return (
     <div>
       <MainSection>
-        <MainWindow />
+        <Viewport />
         <Minibar />
       </MainSection>
       <Sidebar />
@@ -18,10 +18,9 @@ const App = () => {
 };
 
 const MainSection = styled.main`
-  display: flex;
   position: relative;
-  flex-direction: column;
   width: 100 vw;
+  height: 100 vh;
 `;
 
 export default App;
