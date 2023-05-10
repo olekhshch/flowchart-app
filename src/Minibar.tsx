@@ -1,8 +1,20 @@
 import React from "react";
+import { useSelector } from "react-redux";
 import styled from "styled-components";
+import { RootState } from "./app/store";
 
 const Minibar = () => {
-  return <StyledMinibar>Minibar</StyledMinibar>;
+  const { scale } = useSelector((state: RootState) => state.general);
+  return (
+    <StyledMinibar>
+      <div className="btns-container">
+        <button className="btn" title="Show/hide grid">
+          #
+        </button>
+        <div className="scale-info">Scale: {scale}</div>
+      </div>
+    </StyledMinibar>
+  );
 };
 
 const StyledMinibar = styled.section`
@@ -14,6 +26,36 @@ const StyledMinibar = styled.section`
   background-color: var(--main);
   color: white;
   height: 1.4em;
+
+  div {
+    margin: 0 8px;
+    display: flex;
+  }
+
+  @keyframes btnOnHover {
+    from {
+      background-color: var(--btn-mb-0);
+    }
+    to {
+      background-color: var(--btn-mb-1);
+    }
+  }
+
+  .btn {
+    border: none;
+    padding: 0 2px;
+    background: var(--btn-mb-0);
+    color: white;
+    cursor: pointer;
+  }
+
+  .btn:hover {
+    animation: btnOnHover 0.4s forwards;
+  }
+
+  .scale-info {
+    font-size: 14px;
+  }
 `;
 
 export default Minibar;
