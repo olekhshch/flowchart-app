@@ -9,6 +9,10 @@ export interface GeneralSettingsState {
   canvasCoordinates: { left: number; top: number };
   scale: 1 | 1.25 | 1.5 | 2;
   scaleValues: [1, 1.25, 1.5, 2];
+  grid: {
+    isOn: boolean;
+    step: number;
+  };
 }
 
 export const generalSlice = createSlice({

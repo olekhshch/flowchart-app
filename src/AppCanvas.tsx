@@ -8,6 +8,7 @@ import {
   increaseScale,
   setCanvasCoordinates,
 } from "./features/general/generalSlice";
+import CanvasBG from "./CanvasBG";
 
 interface Canvas {
   canvasSize: number;
@@ -80,11 +81,7 @@ const AppCanvas = () => {
       scale={scale}
       onWheel={zoomCanvas}
     >
-      <canvas
-        id="canvas-bg"
-        width={canvasSize * scale}
-        height={canvasSize * scale}
-      />
+      <CanvasBG />
       <CanvasElements />
     </CanvasConteiner>
   );
