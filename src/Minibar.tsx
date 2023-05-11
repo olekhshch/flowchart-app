@@ -1,14 +1,20 @@
 import React from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { RootState } from "./app/store";
+import { toggleGrid } from "./features/general/generalSlice";
 
 const Minibar = () => {
+  const dispatch = useDispatch();
   const { scale } = useSelector((state: RootState) => state.general);
   return (
     <StyledMinibar>
       <div className="btns-container">
-        <button className="btn" title="Show/hide grid">
+        <button
+          className="btn"
+          title="Show/hide grid"
+          onClick={() => dispatch(toggleGrid())}
+        >
           #
         </button>
         <div className="scale-info">Scale: {scale}</div>

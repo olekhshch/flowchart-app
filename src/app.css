@@ -13,6 +13,10 @@
     --sb-bg: rgb(93, 77, 134, 0.5);
 }
 
+li {
+    list-style: none;
+}
+
 html {
     overflow: hidden;
     background-color: orange;

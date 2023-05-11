@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "./app/store";
 import { openSB, closeSB } from "./features/general/generalSlice";
+import { addNode } from "./features/elements/elementsSlice";
 
 const Sidebar = () => {
   const { isSBCollapsed } = useSelector((state: RootState) => state.general);
@@ -25,8 +26,16 @@ const Sidebar = () => {
     <StyledSB>
       <div className="conteiner show-animate">
         <button onClick={() => dispatch(closeSB())}>Collapse SB</button>
-        <section>Add elements</section>
-        <section>Edit elements</section>
+        <section className="sb-section">
+          <h3>Add elements</h3>
+          <ul>
+            <li onClick={() => dispatch(addNode())}>Node</li>
+            <li>Connection</li>
+          </ul>
+        </section>
+        <section className="sb-section">
+          <h3>Edit elements</h3>
+        </section>
       </div>
     </StyledSB>
   );
@@ -45,6 +54,16 @@ const StyledSB = styled.aside`
     background-color: var(--sb-bg);
     backdrop-filter: blur(10px);
     color: white;
+  }
+
+  .sb-section h3 {
+    font-weight: normal;
+    border-bottom: 1px solid white;
+  }
+
+  .sb-section li:hover {
+    cursor: pointer;
+    text-shadow: 0 0 5px white;
   }
 
   @keyframes hide {

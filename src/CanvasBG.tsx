@@ -10,11 +10,18 @@ const CanvasBG = () => {
 
   const canvasBg = useRef(null);
 
+  const clearBG = (canvasEl: HTMLCanvasElement) => {
+    canvasEl
+      .getContext("2d")!
+      .clearRect(0, 0, canvasSize * scale, canvasSize * scale);
+  };
+
   const drawGrid = (
     canvasEl: HTMLCanvasElement,
     step: number,
     scale: number
   ) => {
+    clearBG(canvasEl);
     const a = canvasEl.width;
     const n = a / step;
     const c = canvasEl.getContext("2d")!;
@@ -36,6 +43,8 @@ const CanvasBG = () => {
 
     if (grid.isOn) {
       drawGrid(bg, grid.step, scale);
+    } else {
+      clearBG(bg);
     }
   }, [grid, scale]);
   return (

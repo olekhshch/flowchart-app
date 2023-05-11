@@ -45,6 +45,15 @@ export const generalSlice = createSlice({
         state.scale = 1;
       }
     },
+    turnGridOff: (state) => {
+      state.grid.isOn = false;
+    },
+    turnGridOn: (state) => {
+      state.grid.isOn = true;
+    },
+    toggleGrid: (state) => {
+      state.grid.isOn = !state.grid.isOn;
+    },
   },
 });
 
@@ -56,4 +65,7 @@ export const {
   setCanvasCoordinates,
   increaseScale,
   descreaseScale,
+  turnGridOff,
+  turnGridOn,
+  toggleGrid,
 } = generalSlice.actions;
