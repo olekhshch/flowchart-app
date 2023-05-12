@@ -8,14 +8,16 @@ import { useDispatch } from "react-redux";
 
 interface ChartNodeProps {
   node: ChartNode;
+  scale: number;
 }
 
 interface StyledCompProps {
   top: number;
   left: number;
+  scale: number;
 }
 
-const ChartNodeEl = ({ node }: ChartNodeProps) => {
+const ChartNodeEl = ({ node, scale }: ChartNodeProps) => {
   const dispatch = useDispatch();
 
   const handleMouseDown = (ev: React.MouseEvent) => {
@@ -41,6 +43,7 @@ const ChartNodeEl = ({ node }: ChartNodeProps) => {
     <StyledNode
       top={node.coordinates.top}
       left={node.coordinates.left}
+      scale={scale}
       onMouseDown={handleMouseDown}
     >
       {node.title}
@@ -55,9 +58,10 @@ const StyledNode = styled.div`
   min-width: 100px;
   max-width: 140px;
   text-align: center;
+  scale: ${(props) => props.scale};
   position: absolute;
-  top: ${(props: StyledCompProps) => props.top}px;
-  left: ${(props) => props.left}px;
+  top: ${(props: StyledCompProps) => props.top * props.scale}px;
+  left: ${(props) => props.left * props.scale}px;
   background-color: gray;
   cursor: default;
 `;

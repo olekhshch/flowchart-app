@@ -82,7 +82,7 @@ const AppCanvas = () => {
       onWheel={zoomCanvas}
     >
       <CanvasBG />
-      <CanvasElements />
+      <CanvasElements scale={scale} />
     </CanvasConteiner>
   );
 };

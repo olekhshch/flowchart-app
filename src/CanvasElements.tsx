@@ -4,13 +4,15 @@ import styled from "styled-components";
 import { RootState } from "./app/store";
 import ChartNodeEl from "./ChartNode";
 
-const CanvasElements = () => {
+const CanvasElements = (props: { scale: number }) => {
   const { elements } = useSelector((state: RootState) => state.elements);
   return (
     <ElementsConteiner>
       {elements.map((element) => {
         if (element.type === "node") {
-          return <ChartNodeEl key={element.id} node={element} />;
+          return (
+            <ChartNodeEl key={element.id} node={element} scale={props.scale} />
+          );
         }
       })}
     </ElementsConteiner>
