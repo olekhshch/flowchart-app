@@ -6,7 +6,7 @@ interface NodeCoordinates {
 
 interface ChartElement {
   id: string;
-  type: "node" | "point" | "line";
+  type: "node" | "point" | "line" | "anchor_point";
 }
 
 interface CNode {
@@ -18,22 +18,28 @@ interface CNode {
 
 export type ChartNode = ChartElement & CNode;
 
+interface APoint {
+  parentNodeId: string;
+  position: "top" | "left" | "right" | "bottom";
+}
+
+export type AnchorPoint = APoint & ChartElement;
+
 interface ElementsState {
   lastId: number;
-  elements: ChartNode[];
+  elements: (ChartNode | AnchorPoint)[];
 }
+
+export const anchorPointPositions: ("top" | "right" | "bottom" | "left")[] = [
+  "top",
+  "right",
+  "bottom",
+  "left",
+];
 
 const initialNodeCoordinates: NodeCoordinates = {
   top: 10,
   left: 10,
-};
-
-const initialNode: ChartNode = {
-  id: "",
-  type: "node",
-  title: "New node",
-  note: "",
-  coordinates: initialNodeCoordinates,
 };
 
 const initialState: ElementsState = {
@@ -47,9 +53,13 @@ const elementsSlice = createSlice({
   reducers: {
     addNode: (state) => {
       state.lastId += 1;
+      const nodeId = state.lastId.toString();
       const newNode: ChartNode = {
-        ...initialNode,
-        id: state.lastId.toString(),
+        id: nodeId,
+        type: "node",
+        title: "New node",
+        note: "",
+        coordinates: initialNodeCoordinates,
       };
       state.elements = [...state.elements, newNode];
     },
@@ -65,9 +75,19 @@ const elementsSlice = createSlice({
       });
       state.elements = newElements;
     },
+    renameNode: (state, { payload }) => {
+      const { nodeId, newTitle } = payload;
+      state.elements = state.elements.map((element) => {
+        if (element.id === nodeId) {
+          return { ...element, title: newTitle };
+        }
+        return element;
+      });
+    },
   },
 });
 
 export default elementsSlice.reducer;
 
-export const { addNode, setNodeCoordinates } = elementsSlice.actions;
+export const { addNode, setNodeCoordinates, renameNode } =
+  elementsSlice.actions;

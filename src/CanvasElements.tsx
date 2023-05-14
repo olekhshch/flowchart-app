@@ -3,17 +3,19 @@ import { useSelector } from "react-redux";
 import styled from "styled-components";
 import { RootState } from "./app/store";
 import ChartNodeEl from "./ChartNode";
+import type { ChartNode } from "./features/elements/elementsSlice";
 
 const CanvasElements = (props: { scale: number }) => {
   const { elements } = useSelector((state: RootState) => state.elements);
+  const chartNodeElements = elements.filter(
+    (element) => element.type === "node"
+  ) as ChartNode[];
   return (
     <ElementsConteiner>
-      {elements.map((element) => {
-        if (element.type === "node") {
-          return (
-            <ChartNodeEl key={element.id} node={element} scale={props.scale} />
-          );
-        }
+      {chartNodeElements.map((element) => {
+        return (
+          <ChartNodeEl key={element.id} node={element} scale={props.scale} />
+        );
       })}
     </ElementsConteiner>
   );
@@ -30,4 +32,5 @@ const ElementsConteiner = styled.div`
   z-index: 20;
   cursor: grab;
   user-select: none;
+  overflow: hidden;
 `;

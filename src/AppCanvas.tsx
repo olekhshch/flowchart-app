@@ -56,6 +56,9 @@ const AppCanvas = () => {
       });
     };
     window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+    });
   };
 
   const zoomCanvas = (e: React.WheelEvent) => {
