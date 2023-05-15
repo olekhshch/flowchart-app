@@ -4,19 +4,24 @@ import styled from "styled-components";
 import { RootState } from "./app/store";
 import ChartNodeEl from "./ChartNode";
 import type { ChartNode } from "./features/elements/elementsSlice";
+import Line from "./canvas_elements/Line";
+import ChartPointEl from "./canvas_elements/ChartPoint";
 
 const CanvasElements = (props: { scale: number }) => {
-  const { elements } = useSelector((state: RootState) => state.elements);
-  const chartNodeElements = elements.filter(
-    (element) => element.type === "node"
-  ) as ChartNode[];
+  const {
+    elements: { nodes, points },
+  } = useSelector((state: RootState) => state.elements);
   return (
     <ElementsConteiner>
-      {chartNodeElements.map((element) => {
+      {nodes.map((element) => {
         return (
           <ChartNodeEl key={element.id} node={element} scale={props.scale} />
         );
       })}
+      {points.map((point) => {
+        return <ChartPointEl point={point} scale={props.scale} />;
+      })}
+      <Line begPoint={{ x: "10", y: "10" }} endPoint={{ x: "80", y: "20" }} />
     </ElementsConteiner>
   );
 };

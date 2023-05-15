@@ -25,9 +25,23 @@ interface APoint {
 
 export type AnchorPoint = APoint & ChartElement;
 
+interface PointCoordinates {
+  x: number;
+  y: number;
+}
+
+interface CPoint {
+  coordinates: PointCoordinates;
+}
+
+export type ChartPoint = CPoint & ChartElement;
+
 interface ElementsState {
   lastId: number;
-  elements: (ChartNode | AnchorPoint)[];
+  elements: {
+    nodes: ChartNode[];
+    points: ChartPoint[];
+  };
 }
 
 export const anchorPointPositions: ("top" | "right" | "bottom" | "left")[] = [
@@ -44,13 +58,17 @@ const initialNodeCoordinates: NodeCoordinates = {
 
 const initialState: ElementsState = {
   lastId: 0,
-  elements: [],
+  elements: {
+    nodes: [],
+    points: [],
+  },
 };
 
 const elementsSlice = createSlice({
   name: "elements",
   initialState,
   reducers: {
+    // nodes
     addNode: (state) => {
       state.lastId += 1;
       const nodeId = state.lastId.toString();
@@ -61,10 +79,10 @@ const elementsSlice = createSlice({
         note: "",
         coordinates: initialNodeCoordinates,
       };
-      state.elements = [...state.elements, newNode];
+      state.elements.nodes = [...state.elements.nodes, newNode];
     },
     setNodeCoordinates: (state, { payload }) => {
-      const newElements = state.elements.map((element) => {
+      const newElements = state.elements.nodes.map((element) => {
         if (element.id === payload.nodeId) {
           return {
             ...element,
@@ -73,21 +91,31 @@ const elementsSlice = createSlice({
         }
         return element;
       });
-      state.elements = newElements;
+      state.elements.nodes = newElements;
     },
     renameNode: (state, { payload }) => {
       const { nodeId, newTitle } = payload;
-      state.elements = state.elements.map((element) => {
+      state.elements.nodes = state.elements.nodes.map((element) => {
         if (element.id === nodeId) {
           return { ...element, title: newTitle };
         }
         return element;
       });
     },
+    //points
+    addPoint: (state) => {
+      state.lastId += 1;
+      const newPoint: ChartPoint = {
+        id: state.lastId.toString(),
+        coordinates: { x: 10, y: 20 },
+        type: "point",
+      };
+      state.elements.points = [...state.elements.points, newPoint];
+    },
   },
 });
 
 export default elementsSlice.reducer;
 
-export const { addNode, setNodeCoordinates, renameNode } =
+export const { addNode, setNodeCoordinates, renameNode, addPoint } =
   elementsSlice.actions;
