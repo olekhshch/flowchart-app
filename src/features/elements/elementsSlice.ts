@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 interface NodeCoordinates {
   top: number;
   left: number;
@@ -103,19 +103,47 @@ const elementsSlice = createSlice({
       });
     },
     //points
-    addPoint: (state) => {
+    addPoint: (state, action: PayloadAction<PointCoordinates>) => {
+      const { x, y } = action.payload;
       state.lastId += 1;
       const newPoint: ChartPoint = {
         id: state.lastId.toString(),
-        coordinates: { x: 10, y: 20 },
+        coordinates: { x, y },
         type: "point",
       };
       state.elements.points = [...state.elements.points, newPoint];
+    },
+    setPointCoordinates: (
+      state,
+      action: PayloadAction<{
+        pointId: string;
+        coordinates: { newX: number; newY: number };
+      }>
+    ) => {
+      const {
+        pointId,
+        coordinates: { newX, newY },
+      } = action.payload;
+      const newElements = state.elements.points.map((element) => {
+        if (element.id === pointId) {
+          return {
+            ...element,
+            coordinates: { x: newX, y: newY },
+          };
+        }
+        return element;
+      });
+      state.elements.points = newElements;
     },
   },
 });
 
 export default elementsSlice.reducer;
 
-export const { addNode, setNodeCoordinates, renameNode, addPoint } =
-  elementsSlice.actions;
+export const {
+  addNode,
+  setNodeCoordinates,
+  renameNode,
+  addPoint,
+  setPointCoordinates,
+} = elementsSlice.actions;

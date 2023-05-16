@@ -1,6 +1,10 @@
 import React from "react";
-import { ChartPoint } from "../features/elements/elementsSlice";
+import {
+  ChartPoint,
+  setPointCoordinates,
+} from "../features/elements/elementsSlice";
 import styled from "styled-components";
+import { useDispatch } from "react-redux";
 
 interface CPProps {
   point: ChartPoint;
@@ -13,6 +17,8 @@ interface styledProps {
 }
 
 const ChartPointEl = ({ point, scale }: CPProps) => {
+  const dispatch = useDispatch();
+
   const {
     coordinates: { x, y },
   } = point;
@@ -21,7 +27,33 @@ const ChartPointEl = ({ point, scale }: CPProps) => {
     top: y - 3,
     left: x - 3,
   };
-  return <Point coordinates={elCoord} scale={scale} />;
+
+  const handleMouseDown = (ev: React.MouseEvent) => {
+    const x0 = ev.clientX;
+    const y0 = ev.clientY;
+    const handleMouseMove = (e: MouseEvent) => {
+      const x = e.clientX;
+      const y = e.clientY;
+      const dX = x - x0;
+      const dY = y - y0;
+      const newX = point.coordinates.x + dX / scale;
+      const newY = point.coordinates.y + dY / scale;
+      dispatch(
+        setPointCoordinates({
+          pointId: point.id,
+          coordinates: { newX, newY },
+        })
+      );
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+    });
+    ev.stopPropagation();
+  };
+  return (
+    <Point coordinates={elCoord} scale={scale} onMouseDown={handleMouseDown} />
+  );
 };
 
 export default ChartPointEl;

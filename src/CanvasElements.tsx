@@ -1,9 +1,7 @@
-import React from "react";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
 import { RootState } from "./app/store";
 import ChartNodeEl from "./ChartNode";
-import type { ChartNode } from "./features/elements/elementsSlice";
 import Line from "./canvas_elements/Line";
 import ChartPointEl from "./canvas_elements/ChartPoint";
 
@@ -12,23 +10,25 @@ const CanvasElements = (props: { scale: number }) => {
     elements: { nodes, points },
   } = useSelector((state: RootState) => state.elements);
   return (
-    <ElementsConteiner>
+    <ElementsContainer id="elements-container">
       {nodes.map((element) => {
         return (
           <ChartNodeEl key={element.id} node={element} scale={props.scale} />
         );
       })}
       {points.map((point) => {
-        return <ChartPointEl point={point} scale={props.scale} />;
+        return (
+          <ChartPointEl key={point.id} point={point} scale={props.scale} />
+        );
       })}
       <Line begPoint={{ x: "10", y: "10" }} endPoint={{ x: "80", y: "20" }} />
-    </ElementsConteiner>
+    </ElementsContainer>
   );
 };
 
 export default CanvasElements;
 
-const ElementsConteiner = styled.div`
+const ElementsContainer = styled.div`
   position: absolute;
   top: 0;
   left: 0;

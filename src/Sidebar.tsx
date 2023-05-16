@@ -6,7 +6,9 @@ import { openSB, closeSB } from "./features/general/generalSlice";
 import { addNode, addPoint } from "./features/elements/elementsSlice";
 
 const Sidebar = () => {
-  const { isSBCollapsed } = useSelector((state: RootState) => state.general);
+  const { isSBCollapsed, scale } = useSelector(
+    (state: RootState) => state.general
+  );
   const dispatch = useDispatch();
 
   if (isSBCollapsed) {
@@ -20,6 +22,22 @@ const Sidebar = () => {
     );
   }
 
+  const addPointMode = () => {
+    const elementsContainer = document.getElementById(
+      "elements-container"
+    ) as HTMLDivElement;
+    const { top, left } = elementsContainer.getBoundingClientRect();
+    const handleClick = (e: MouseEvent) => {
+      const x0 = e.clientX;
+      const y0 = e.clientY;
+      const x = (x0 - left) / scale;
+      const y = (y0 - top) / scale;
+      dispatch(addPoint({ x, y }));
+      elementsContainer.removeEventListener("click", handleClick);
+    };
+    elementsContainer.addEventListener("click", handleClick);
+  };
+
   return (
     <StyledSB>
       <div className="conteiner show-animate">
@@ -28,7 +46,7 @@ const Sidebar = () => {
           <h3>Add elements</h3>
           <ul>
             <li onClick={() => dispatch(addNode())}>Node</li>
-            <li onClick={() => dispatch(addPoint())}>Point</li>
+            <li onClick={addPointMode}>Point</li>
             <li>Connection</li>
           </ul>
         </section>
