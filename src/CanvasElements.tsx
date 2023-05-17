@@ -7,7 +7,7 @@ import ChartPointEl from "./canvas_elements/ChartPoint";
 
 const CanvasElements = (props: { scale: number }) => {
   const {
-    elements: { nodes, points },
+    elements: { nodes, points, lines },
   } = useSelector((state: RootState) => state.elements);
   return (
     <ElementsContainer id="elements-container">
@@ -21,7 +21,18 @@ const CanvasElements = (props: { scale: number }) => {
           <ChartPointEl key={point.id} point={point} scale={props.scale} />
         );
       })}
-      <Line begPoint={{ x: "10", y: "10" }} endPoint={{ x: "80", y: "20" }} />
+      <svg width="100%" height="100%">
+        {lines.map((line) => {
+          const { beginningPointId, endPointId } = line;
+          console.log(beginningPointId, endPointId, points);
+
+          const begPoint = points.find(
+            (point) => point.id === beginningPointId
+          )!;
+          const endPoint = points.find((point) => point.id === endPointId)!;
+          return <Line key={line.id} begPoint={begPoint} endPoint={endPoint} />;
+        })}
+      </svg>
     </ElementsContainer>
   );
 };

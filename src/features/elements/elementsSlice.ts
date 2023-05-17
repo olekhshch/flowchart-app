@@ -1,4 +1,5 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
+import { ChartLine } from "./elementsTypes";
 interface NodeCoordinates {
   top: number;
   left: number;
@@ -41,6 +42,7 @@ interface ElementsState {
   elements: {
     nodes: ChartNode[];
     points: ChartPoint[];
+    lines: (ChartLine & ChartElement)[];
   };
 }
 
@@ -60,7 +62,20 @@ const initialState: ElementsState = {
   lastId: 0,
   elements: {
     nodes: [],
-    points: [],
+    points: [
+      { id: "10", type: "point", coordinates: { x: 40, y: 60 } },
+      { id: "11", type: "point", coordinates: { x: 120, y: 74 } },
+    ],
+    lines: [
+      {
+        id: "20",
+        type: "line",
+        colour: "blue",
+        beginningPointId: "10",
+        endPointId: "11",
+        strokeWidth: 2,
+      },
+    ],
   },
 };
 
@@ -134,6 +149,27 @@ const elementsSlice = createSlice({
         return element;
       });
       state.elements.points = newElements;
+    },
+    //line
+    addLine: (
+      state,
+      action: PayloadAction<{
+        beginningPointId: string;
+        endPointId: string;
+        colour: string;
+      }>
+    ) => {
+      const { beginningPointId, endPointId, colour } = action.payload;
+      state.lastId += 1;
+      const newLine: ChartLine & ChartElement = {
+        type: "line",
+        beginningPointId,
+        endPointId,
+        colour,
+        strokeWidth: 2,
+        id: state.lastId.toString(),
+      };
+      state.elements.lines = [...state.elements.lines, newLine];
     },
   },
 });

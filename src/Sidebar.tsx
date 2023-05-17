@@ -38,16 +38,34 @@ const Sidebar = () => {
     elementsContainer.addEventListener("click", handleClick);
   };
 
+  const addLineMode = () => {
+    const elementsContainer = document.getElementById(
+      "elements-container"
+    ) as HTMLDivElement;
+
+    const handleFirstClick = (e: MouseEvent) => {
+      console.log("Click");
+      elementsContainer.removeEventListener("click", handleFirstClick);
+    };
+    elementsContainer.addEventListener("click", handleFirstClick);
+  };
+
   return (
     <StyledSB>
       <div className="conteiner show-animate">
         <button onClick={() => dispatch(closeSB())}>Collapse SB</button>
         <section className="sb-section">
-          <h3>Add elements</h3>
+          <h3>Flowchart elements</h3>
           <ul>
             <li onClick={() => dispatch(addNode())}>Node</li>
-            <li onClick={addPointMode}>Point</li>
             <li>Connection</li>
+          </ul>
+        </section>
+        <section className="sb-section">
+          <h3>Shapes</h3>
+          <ul>
+            <li onClick={addLineMode}>Line</li>
+            <li onClick={addPointMode}>Point</li>
           </ul>
         </section>
         <section className="sb-section">
