@@ -4,16 +4,27 @@ import { RootState } from "./app/store";
 import ChartNodeEl from "./ChartNode";
 import Line from "./canvas_elements/Line";
 import ChartPointEl from "./canvas_elements/ChartPoint";
+import TextLine from "./canvas_elements/TextLine";
+import AnchorPoint from "./canvas_elements/AnchorPoint";
 
 const CanvasElements = (props: { scale: number }) => {
+  const { mode } = useSelector((state: RootState) => state.general);
   const {
-    elements: { nodes, points, lines },
+    elements: { nodes, points, anchorPoints, lines, texts },
   } = useSelector((state: RootState) => state.elements);
   return (
-    <ElementsContainer id="elements-container">
+    <ElementsContainer id="elements-container" mode={mode}>
       {nodes.map((element) => {
         return (
           <ChartNodeEl key={element.id} node={element} scale={props.scale} />
+        );
+      })}
+      {anchorPoints.map((a_point) => {
+        const parentNode = nodes.find(
+          (node) => node.id === a_point.parentNodeId
+        );
+        return (
+          <AnchorPoint key={a_point.id} point={a_point} parent={parentNode!} />
         );
       })}
       {points.map((point) => {
@@ -21,10 +32,12 @@ const CanvasElements = (props: { scale: number }) => {
           <ChartPointEl key={point.id} point={point} scale={props.scale} />
         );
       })}
+      {texts.map((text) => {
+        return <TextLine key={text.id} data={text} />;
+      })}
       <svg width="100%" height="100%">
         {lines.map((line) => {
           const { beginningPointId, endPointId } = line;
-          console.log(beginningPointId, endPointId, points);
 
           const begPoint = points.find(
             (point) => point.id === beginningPointId
@@ -46,7 +59,8 @@ const ElementsContainer = styled.div`
   right: 0;
   bottom: 0;
   z-index: 20;
-  cursor: grab;
+  cursor: ${(props: { mode: string }) =>
+    ["edit", "view"].includes(props.mode) ? "grab" : "default"};
   user-select: none;
   overflow: hidden;
 `;

@@ -1,18 +1,19 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { initialState } from "./initialState";
 
-const scaleValues: [1, 1.25, 1.5, 2] = [1, 1.25, 1.5, 2];
+const scaleValues: [1, 1.25, 1.5, 2, 3] = [1, 1.25, 1.5, 2, 3];
 
 export interface GeneralSettingsState {
   isSBCollapsed: boolean;
   canvasSize: number;
   canvasCoordinates: { left: number; top: number };
-  scale: 1 | 1.25 | 1.5 | 2;
-  scaleValues: [1, 1.25, 1.5, 2];
+  scale: 1 | 1.25 | 1.5 | 2 | 3;
+  scaleValues: [1, 1.25, 1.5, 2, 3];
   grid: {
     isOn: boolean;
     step: number;
   };
+  mode: "edit" | "view" | "set_point";
 }
 
 export const generalSlice = createSlice({
@@ -30,11 +31,11 @@ export const generalSlice = createSlice({
       state.canvasCoordinates.top = newTop;
     },
     increaseScale: (state) => {
-      if (state.scale !== 2) {
+      if (state.scale !== 3) {
         const currectScaleIndex = scaleValues.indexOf(state.scale);
         state.scale = scaleValues[currectScaleIndex + 1];
       } else {
-        state.scale = 2;
+        state.scale = 3;
       }
     },
     descreaseScale: (state) => {
@@ -54,6 +55,12 @@ export const generalSlice = createSlice({
     toggleGrid: (state) => {
       state.grid.isOn = !state.grid.isOn;
     },
+    setMode: (
+      state,
+      { payload }: PayloadAction<"view" | "edit" | "set_point">
+    ) => {
+      state.mode = payload;
+    },
   },
 });
 
@@ -68,4 +75,5 @@ export const {
   turnGridOff,
   turnGridOn,
   toggleGrid,
+  setMode,
 } = generalSlice.actions;

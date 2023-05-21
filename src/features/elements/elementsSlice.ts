@@ -1,57 +1,21 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
-import { ChartLine } from "./elementsTypes";
-interface NodeCoordinates {
-  top: number;
-  left: number;
-}
-
-interface ChartElement {
-  id: string;
-  type: "node" | "point" | "line" | "anchor_point";
-}
-
-interface CNode {
-  id: string;
-  title: string;
-  note: string;
-  coordinates: NodeCoordinates;
-}
-
-export type ChartNode = ChartElement & CNode;
-
-interface APoint {
-  parentNodeId: string;
-  position: "top" | "left" | "right" | "bottom";
-}
-
-export type AnchorPoint = APoint & ChartElement;
-
-interface PointCoordinates {
-  x: number;
-  y: number;
-}
-
-interface CPoint {
-  coordinates: PointCoordinates;
-}
-
-export type ChartPoint = CPoint & ChartElement;
-
-interface ElementsState {
-  lastId: number;
-  elements: {
-    nodes: ChartNode[];
-    points: ChartPoint[];
-    lines: (ChartLine & ChartElement)[];
-  };
-}
-
-export const anchorPointPositions: ("top" | "right" | "bottom" | "left")[] = [
-  "top",
-  "right",
-  "bottom",
-  "left",
-];
+import {
+  ElementsState,
+  ChartLine,
+  TextElement,
+  AnchorPoint,
+  ChartCircle,
+  ChartConnection,
+  CNode,
+  ChartElement,
+  ChartNode,
+  ChartPoint,
+  ChartShape,
+  NodeCoordinates,
+  APoint,
+  CPoint,
+  PointCoordinates,
+} from "./elementsTypes";
 
 const initialNodeCoordinates: NodeCoordinates = {
   top: 10,
@@ -60,24 +24,24 @@ const initialNodeCoordinates: NodeCoordinates = {
 
 const initialState: ElementsState = {
   lastId: 0,
+  node_size: { w: 110, h: 40 },
   elements: {
     nodes: [],
-    points: [
-      { id: "10", type: "point", coordinates: { x: 40, y: 60 } },
-      { id: "11", type: "point", coordinates: { x: 120, y: 74 } },
-    ],
-    lines: [
-      {
-        id: "20",
-        type: "line",
-        colour: "blue",
-        beginningPointId: "10",
-        endPointId: "11",
-        strokeWidth: 2,
-      },
-    ],
+    points: [],
+    anchorPoints: [],
+    lines: [],
+    texts: [],
+    shapes: [],
+    connections: [],
   },
 };
+
+export const anchorPointPositions: ("top" | "right" | "bottom" | "left")[] = [
+  "top",
+  "right",
+  "bottom",
+  "left",
+];
 
 const elementsSlice = createSlice({
   name: "elements",
@@ -95,6 +59,20 @@ const elementsSlice = createSlice({
         coordinates: initialNodeCoordinates,
       };
       state.elements.nodes = [...state.elements.nodes, newNode];
+
+      anchorPointPositions.map((position) => {
+        state.lastId += 1;
+        const newAnchorPoint: AnchorPoint = {
+          id: state.lastId.toString(),
+          parentNodeId: nodeId,
+          position,
+          type: "anchor_point",
+        };
+        state.elements.anchorPoints = [
+          ...state.elements.anchorPoints,
+          newAnchorPoint,
+        ];
+      });
     },
     setNodeCoordinates: (state, { payload }) => {
       const newElements = state.elements.nodes.map((element) => {
@@ -171,6 +149,50 @@ const elementsSlice = createSlice({
       };
       state.elements.lines = [...state.elements.lines, newLine];
     },
+    //texts
+    addTextLine: (state, action: PayloadAction<PointCoordinates>) => {
+      const { x, y } = action.payload;
+      state.lastId += 1;
+      const newTextLine: TextElement = {
+        id: state.lastId.toString(),
+        type: "text_line",
+        value: "",
+        coordinates: { left: x, top: y },
+      };
+      state.elements.texts = [...state.elements.texts, newTextLine];
+    },
+    setTextLineValue: (
+      state,
+      action: PayloadAction<{ textId: string; newValue: string }>
+    ) => {
+      const { newValue, textId } = action.payload;
+      state.elements.texts.map((text) => {
+        if (text.id === textId) {
+          return { ...text, value: newValue };
+        }
+        return text;
+      });
+    },
+    setTextCoordinates: (
+      state,
+      action: PayloadAction<{
+        textId: string;
+        newTop: number;
+        newLeft: number;
+      }>
+    ) => {
+      const { textId, newLeft, newTop } = action.payload;
+      state.elements.texts = state.elements.texts.map((text) => {
+        if (text.id === textId) {
+          return { ...text, coordinates: { left: newLeft, top: newTop } };
+        }
+        return text;
+      });
+    },
+    //connections
+    connectTwoPoints: (state) => {
+      console.log("connecting 2 points");
+    },
   },
 });
 
@@ -182,4 +204,9 @@ export const {
   renameNode,
   addPoint,
   setPointCoordinates,
+  addLine,
+  addTextLine,
+  setTextLineValue,
+  setTextCoordinates,
+  connectTwoPoints,
 } = elementsSlice.actions;

@@ -1,4 +1,4 @@
-import { ChartPoint } from "../features/elements/elementsSlice";
+import { ChartPoint } from "../features/elements/elementsTypes";
 import { useSelector } from "react-redux";
 import { RootState } from "../app/store";
 

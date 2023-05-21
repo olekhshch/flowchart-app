@@ -1,14 +1,14 @@
 import React, { ChangeEvent, FormEvent, useRef, useState } from "react";
 import {
   anchorPointPositions,
-  ChartNode,
   renameNode,
   setNodeCoordinates,
 } from "./features/elements/elementsSlice";
+import { ChartNode } from "./features/elements/elementsTypes";
 import styled from "styled-components";
-import { useDispatch } from "react-redux";
-import { RootState } from "./app/store";
+import { useDispatch, useSelector } from "react-redux";
 import AnchorPoint from "./canvas_elements/AnchorPoint";
+import { RootState } from "./app/store";
 
 interface ChartNodeProps {
   node: ChartNode;
@@ -24,6 +24,9 @@ interface StyledCompProps {
 const ChartNodeEl = ({ node, scale }: ChartNodeProps) => {
   const dispatch = useDispatch();
   const nodeEl = useRef<HTMLSpanElement>(null);
+  const {
+    node_size: { w, h },
+  } = useSelector((state: RootState) => state.elements);
 
   const [editMode, setEditMode] = useState(false);
   const [inputSize, setInputSize] = useState({ width: 100, height: 22 });
@@ -65,7 +68,7 @@ const ChartNodeEl = ({ node, scale }: ChartNodeProps) => {
   const handleInputChange = (e: ChangeEvent) => {
     const { target } = e;
     const newValue = (target as HTMLInputElement)!.value;
-    if (newValue.length < 60) {
+    if (newValue.length < 40) {
       dispatch(
         renameNode({
           nodeId: node.id,
@@ -116,14 +119,14 @@ const ChartNodeEl = ({ node, scale }: ChartNodeProps) => {
       onMouseDown={handleMouseDown}
     >
       <div>
-        <div className="node">
+        <div className="node" style={{ width: w + "px", height: h + "px" }}>
           <span ref={nodeEl} onDoubleClick={handleDoubleClick}>
             {node.title}
           </span>
         </div>
-        {anchorPointPositions.map((position) => {
+        {/* {anchorPointPositions.map((position) => {
           return <AnchorPoint key={position} position={position} />;
-        })}
+        })} */}
       </div>
     </StyledNode>
   );
@@ -134,6 +137,7 @@ export default ChartNodeEl;
 const StyledNode = styled.article`
   transform-origin: 0 0;
   text-align: center;
+
   scale: ${(props) => props.scale};
   position: absolute;
   top: ${(props: StyledCompProps) => props.top * props.scale}px;
@@ -141,17 +145,25 @@ const StyledNode = styled.article`
 
   .node {
     padding: 4px 10px;
-    min-width: 100px;
-    max-width: 220px;
-    background-color: gray;
+    width: 140px;
+    height: 60px;
+    background-color: var(--node-bg);
     cursor: default;
     text-overflow: ellipsis;
+    align-items: center;
     overflow: hidden;
+    border-radius: 6px;
+    border: 1px solid white;
+  }
+
+  .node:hover {
+    border: 1px solid var(--main);
   }
 
   span {
     text-overflow: ellipsis;
     overflow: hidden;
+    font-size: var(--node-font-size);
   }
 `;
 

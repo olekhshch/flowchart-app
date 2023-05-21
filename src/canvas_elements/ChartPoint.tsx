@@ -1,8 +1,6 @@
 import React from "react";
-import {
-  ChartPoint,
-  setPointCoordinates,
-} from "../features/elements/elementsSlice";
+import { setPointCoordinates } from "../features/elements/elementsSlice";
+import { AnchorPoint, ChartPoint } from "../features/elements/elementsTypes";
 import styled from "styled-components";
 import { useDispatch } from "react-redux";
 
@@ -58,7 +56,7 @@ const ChartPointEl = ({ point, scale }: CPProps) => {
 
 export default ChartPointEl;
 
-const Point = styled.div`
+export const Point = styled.div`
   position: absolute;
   left: ${(props: styledProps) => props.coordinates.left * props.scale}px;
   top: ${(props: styledProps) => props.coordinates.top * props.scale}px;
