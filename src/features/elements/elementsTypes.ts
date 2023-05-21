@@ -39,6 +39,8 @@ export type ChartPoint = CPoint & ChartElement;
 export interface ElementsState {
   lastId: number;
   node_size: { w: number; h: number };
+  draft: [string, JointType][];
+  connection_type: "straight" | "bezier";
   elements: {
     nodes: ChartNode[];
     points: ChartPoint[];
@@ -49,6 +51,8 @@ export interface ElementsState {
     connections: ChartConnection[];
   };
 }
+
+export type JointType = "point" | "anchor_point";
 
 export interface ChartLine {
   beginningPointId: string;
@@ -78,6 +82,8 @@ export interface ChartCircle {
 export interface ChartConnection {
   id: string;
   line_type: "straight" | "bezier";
-  begPoint: string;
-  endPoint: string;
+  beginningPointId: string;
+  endPointId: string;
+  begType: JointType;
+  endType: JointType;
 }

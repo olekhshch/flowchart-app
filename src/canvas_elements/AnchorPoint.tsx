@@ -24,8 +24,20 @@ const AnchorPoint = ({ point, parent }: APProps) => {
   const pointCoordinates = { top: 0, left: 0 };
   switch (position) {
     case "top":
-      pointCoordinates.top = coordinates.top - 1 * scale;
-      pointCoordinates.left = coordinates.left + 0.5 * w;
+      pointCoordinates.top = coordinates.top - 2;
+      pointCoordinates.left = coordinates.left + w * 0.5 - 2;
+      break;
+    case "right":
+      pointCoordinates.top = coordinates.top + 0.5 * h - 1 * scale;
+      pointCoordinates.left = coordinates.left + w - 2;
+      break;
+    case "bottom":
+      pointCoordinates.top = coordinates.top + h - 2;
+      pointCoordinates.left = coordinates.left + 0.5 * w - 2;
+      break;
+    case "left":
+      pointCoordinates.top = coordinates.top + 0.5 * h - 1 * scale;
+      pointCoordinates.left = coordinates.left - 2;
   }
 
   // const coord = { top: "", left: "" };

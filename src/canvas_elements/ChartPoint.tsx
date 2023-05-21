@@ -1,8 +1,15 @@
-import React from "react";
-import { setPointCoordinates } from "../features/elements/elementsSlice";
-import { AnchorPoint, ChartPoint } from "../features/elements/elementsTypes";
+import React, { useRef } from "react";
+import {
+  addToDraft,
+  clearDraft,
+  connectTwoPoints,
+  setPointCoordinates,
+} from "../features/elements/elementsSlice";
+import { ChartPoint } from "../features/elements/elementsTypes";
 import styled from "styled-components";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../app/store";
+import { setMode } from "../features/general/generalSlice";
 
 interface CPProps {
   point: ChartPoint;
@@ -16,6 +23,11 @@ interface styledProps {
 
 const ChartPointEl = ({ point, scale }: CPProps) => {
   const dispatch = useDispatch();
+
+  const pointEl = useRef<HTMLDivElement>(null)!;
+
+  const { mode } = useSelector((state: RootState) => state.general);
+  const { draft } = useSelector((state: RootState) => state.elements);
 
   const {
     coordinates: { x, y },
@@ -49,8 +61,28 @@ const ChartPointEl = ({ point, scale }: CPProps) => {
     });
     ev.stopPropagation();
   };
+
+  const handleClick = () => {
+    if (mode === "connect_points") {
+      const element = pointEl.current!;
+      dispatch(addToDraft([element.dataset.id, point.type]));
+      if (draft.length === 1) {
+        dispatch(setMode("edit"));
+        dispatch(connectTwoPoints());
+        dispatch(clearDraft());
+      }
+    }
+  };
   return (
-    <Point coordinates={elCoord} scale={scale} onMouseDown={handleMouseDown} />
+    <Point
+      ref={pointEl}
+      coordinates={elCoord}
+      scale={scale}
+      onMouseDown={handleMouseDown}
+      onClick={handleClick}
+      data-point-type={point.type}
+      data-id={point.id}
+    />
   );
 };
 

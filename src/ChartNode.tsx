@@ -40,8 +40,8 @@ const ChartNodeEl = ({ node, scale }: ChartNodeProps) => {
       const y = e.clientY;
       const dX = x - x0;
       const dY = y - y0;
-      const newLeft = node.coordinates.left + dX;
-      const newTop = node.coordinates.top + dY;
+      const newLeft = node.coordinates.left + dX / scale;
+      const newTop = node.coordinates.top + dY / scale;
       dispatch(
         setNodeCoordinates({
           nodeId: node.id,
@@ -144,9 +144,6 @@ const StyledNode = styled.article`
   left: ${(props) => props.left * props.scale}px;
 
   .node {
-    padding: 4px 10px;
-    width: 140px;
-    height: 60px;
     background-color: var(--node-bg);
     cursor: default;
     text-overflow: ellipsis;
@@ -161,6 +158,8 @@ const StyledNode = styled.article`
   }
 
   span {
+    padding: 4px 6px;
+    text-align: justify;
     text-overflow: ellipsis;
     overflow: hidden;
     font-size: var(--node-font-size);

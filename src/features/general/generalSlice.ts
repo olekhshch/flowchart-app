@@ -3,6 +3,8 @@ import { initialState } from "./initialState";
 
 const scaleValues: [1, 1.25, 1.5, 2, 3] = [1, 1.25, 1.5, 2, 3];
 
+type Mode = "view" | "edit" | "set_point" | "set_line" | "connect_points";
+
 export interface GeneralSettingsState {
   isSBCollapsed: boolean;
   canvasSize: number;
@@ -13,7 +15,7 @@ export interface GeneralSettingsState {
     isOn: boolean;
     step: number;
   };
-  mode: "edit" | "view" | "set_point";
+  mode: Mode;
 }
 
 export const generalSlice = createSlice({
@@ -55,10 +57,7 @@ export const generalSlice = createSlice({
     toggleGrid: (state) => {
       state.grid.isOn = !state.grid.isOn;
     },
-    setMode: (
-      state,
-      { payload }: PayloadAction<"view" | "edit" | "set_point">
-    ) => {
+    setMode: (state, { payload }: PayloadAction<Mode>) => {
       state.mode = payload;
     },
   },

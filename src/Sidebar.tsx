@@ -102,7 +102,7 @@ const Sidebar = () => {
   };
 
   const connectPointsMode = () => {
-    dispatch(connectTwoPoints());
+    dispatch(setMode("connect_points"));
   };
 
   const addTextLineMode = () => {
@@ -129,7 +129,7 @@ const Sidebar = () => {
           <h3>Flowchart elements</h3>
           <ul>
             <li onClick={() => dispatch(addNode())}>Node</li>
-            <li>Connection</li>
+            <li onClick={connectPointsMode}>Connection</li>
           </ul>
         </section>
         <section className="sb-section">

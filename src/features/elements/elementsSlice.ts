@@ -24,7 +24,9 @@ const initialNodeCoordinates: NodeCoordinates = {
 
 const initialState: ElementsState = {
   lastId: 0,
-  node_size: { w: 110, h: 40 },
+  draft: [],
+  connection_type: "straight",
+  node_size: { w: 140, h: 50 },
   elements: {
     nodes: [],
     points: [],
@@ -191,7 +193,30 @@ const elementsSlice = createSlice({
     },
     //connections
     connectTwoPoints: (state) => {
-      console.log("connecting 2 points");
+      const [begPoint, begType] = state.draft[0];
+      const [endPoint, endType] = state.draft[1];
+      if (begPoint && endPoint) {
+        state.lastId += 1;
+        if (state.connection_type === "straight")
+          state.elements.connections = [
+            ...state.elements.connections,
+            {
+              id: state.lastId.toString(),
+              beginningPointId: begPoint,
+              endPointId: endPoint,
+              begType,
+              endType,
+              line_type: state.connection_type,
+            },
+          ];
+      }
+    },
+    addToDraft: (state, { payload }) => {
+      console.log(payload);
+      state.draft = [...state.draft, payload];
+    },
+    clearDraft: (state) => {
+      state.draft = [];
     },
   },
 });
@@ -209,4 +234,6 @@ export const {
   setTextLineValue,
   setTextCoordinates,
   connectTwoPoints,
+  addToDraft,
+  clearDraft,
 } = elementsSlice.actions;
