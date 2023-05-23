@@ -2,11 +2,11 @@ import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { RootState } from "./app/store";
-import { toggleGrid } from "./features/general/generalSlice";
+import { setMode, toggleGrid } from "./features/general/generalSlice";
 
 const Minibar = () => {
   const dispatch = useDispatch();
-  const { scale } = useSelector((state: RootState) => state.general);
+  const { scale, mode } = useSelector((state: RootState) => state.general);
   return (
     <StyledMinibar>
       <div className="btns-container">
@@ -16,6 +16,19 @@ const Minibar = () => {
           onClick={() => dispatch(toggleGrid())}
         >
           #
+        </button>
+        <button
+          className="btn"
+          title="View/edit mode"
+          onClick={() => {
+            if (mode === "view") {
+              dispatch(setMode("edit"));
+            } else {
+              dispatch(setMode("view"));
+            }
+          }}
+        >
+          .
         </button>
         <div className="scale-info">Scale: {scale}</div>
       </div>

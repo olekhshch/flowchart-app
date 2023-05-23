@@ -8,9 +8,7 @@ import {
   addNode,
   addPoint,
   addTextLine,
-  connectTwoPoints,
 } from "./features/elements/elementsSlice";
-import { connect } from "http2";
 
 type PointDraft = {
   id: string;
@@ -22,7 +20,9 @@ const Sidebar = () => {
   const { isSBCollapsed, scale } = useSelector(
     (state: RootState) => state.general
   );
-  const { lastId } = useSelector((state: RootState) => state.elements);
+  const { lastId, node_size } = useSelector(
+    (state: RootState) => state.elements
+  );
   const dispatch = useDispatch();
 
   if (isSBCollapsed) {
@@ -35,6 +35,25 @@ const Sidebar = () => {
       </StyledSB>
     );
   }
+
+  const addNodeMode = () => {
+    const elementsContainer = document.getElementById(
+      "elements-container"
+    ) as HTMLDivElement;
+    dispatch(setMode("set_node"));
+    const { top, left } = elementsContainer.getBoundingClientRect();
+    const handleClick = (e: MouseEvent) => {
+      const x0 = e.clientX;
+      const y0 = e.clientY;
+      const x = (x0 - left) / scale - 0.5 * node_size.w;
+      const y = (y0 - top) / scale - 0.5 * node_size.h;
+      dispatch(addNode({ left: x, top: y }));
+      dispatch(setMode("edit"));
+
+      elementsContainer.removeEventListener("click", handleClick);
+    };
+    elementsContainer.addEventListener("click", handleClick);
+  };
 
   const addPointMode = () => {
     const elementsContainer = document.getElementById(
@@ -109,6 +128,7 @@ const Sidebar = () => {
     const elementsContainer = document.getElementById(
       "elements-container"
     ) as HTMLDivElement;
+    dispatch(setMode("set_textline"));
     const { top, left } = elementsContainer.getBoundingClientRect();
     const handleClick = (e: MouseEvent) => {
       const x0 = e.clientX;
@@ -116,6 +136,7 @@ const Sidebar = () => {
       const x = (x0 - left) / scale;
       const y = (y0 - top) / scale;
       dispatch(addTextLine({ x, y }));
+      dispatch(setMode("edit"));
       elementsContainer.removeEventListener("click", handleClick);
     };
     elementsContainer.addEventListener("click", handleClick);
@@ -128,7 +149,7 @@ const Sidebar = () => {
         <section className="sb-section">
           <h3>Flowchart elements</h3>
           <ul>
-            <li onClick={() => dispatch(addNode())}>Node</li>
+            <li onClick={addNodeMode}>Node</li>
             <li onClick={connectPointsMode}>Connection</li>
           </ul>
         </section>

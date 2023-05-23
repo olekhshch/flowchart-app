@@ -3,7 +3,14 @@ import { initialState } from "./initialState";
 
 const scaleValues: [1, 1.25, 1.5, 2, 3] = [1, 1.25, 1.5, 2, 3];
 
-type Mode = "view" | "edit" | "set_point" | "set_line" | "connect_points";
+type Mode =
+  | "view"
+  | "edit"
+  | "set_node"
+  | "set_point"
+  | "set_line"
+  | "set_textline"
+  | "connect_points";
 
 export interface GeneralSettingsState {
   isSBCollapsed: boolean;

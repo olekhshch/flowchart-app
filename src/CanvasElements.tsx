@@ -25,19 +25,25 @@ const CanvasElements = (props: { scale: number }) => {
           <ChartNodeEl key={element.id} node={element} scale={props.scale} />
         );
       })}
-      {anchorPoints.map((a_point) => {
-        const parentNode = nodes.find(
-          (node) => node.id === a_point.parentNodeId
-        );
-        return (
-          <AnchorPoint key={a_point.id} point={a_point} parent={parentNode!} />
-        );
-      })}
-      {points.map((point) => {
-        return (
-          <ChartPointEl key={point.id} point={point} scale={props.scale} />
-        );
-      })}
+      {mode !== "view" &&
+        anchorPoints.map((a_point) => {
+          const parentNode = nodes.find(
+            (node) => node.id === a_point.parentNodeId
+          );
+          return (
+            <AnchorPoint
+              key={a_point.id}
+              point={a_point}
+              parent={parentNode!}
+            />
+          );
+        })}
+      {mode !== "view" &&
+        points.map((point) => {
+          return (
+            <ChartPointEl key={point.id} point={point} scale={props.scale} />
+          );
+        })}
       {texts.map((text) => {
         return <TextLine key={text.id} data={text} />;
       })}

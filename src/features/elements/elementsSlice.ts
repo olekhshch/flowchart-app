@@ -50,7 +50,8 @@ const elementsSlice = createSlice({
   initialState,
   reducers: {
     // nodes
-    addNode: (state) => {
+    addNode: (state, action: PayloadAction<{ left: number; top: number }>) => {
+      const { left, top } = action.payload;
       state.lastId += 1;
       const nodeId = state.lastId.toString();
       const newNode: ChartNode = {
@@ -58,7 +59,7 @@ const elementsSlice = createSlice({
         type: "node",
         title: "New node",
         note: "",
-        coordinates: initialNodeCoordinates,
+        coordinates: { left, top },
       };
       state.elements.nodes = [...state.elements.nodes, newNode];
 
