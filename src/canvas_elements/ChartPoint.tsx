@@ -24,8 +24,6 @@ interface styledProps {
 const ChartPointEl = ({ point, scale }: CPProps) => {
   const dispatch = useDispatch();
 
-  const pointEl = useRef<HTMLDivElement>(null)!;
-
   const { mode } = useSelector((state: RootState) => state.general);
   const { draft } = useSelector((state: RootState) => state.elements);
 
@@ -64,8 +62,7 @@ const ChartPointEl = ({ point, scale }: CPProps) => {
 
   const handleClick = () => {
     if (mode === "connect_points") {
-      const element = pointEl.current!;
-      dispatch(addToDraft([element.dataset.id, point.type]));
+      dispatch(addToDraft([point.id, point.type, null]));
       if (draft.length === 1) {
         dispatch(setMode("edit"));
         dispatch(connectTwoPoints());
@@ -73,9 +70,9 @@ const ChartPointEl = ({ point, scale }: CPProps) => {
       }
     }
   };
+
   return (
     <Point
-      ref={pointEl}
       coordinates={elCoord}
       scale={scale}
       onMouseDown={handleMouseDown}

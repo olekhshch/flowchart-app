@@ -193,8 +193,8 @@ const elementsSlice = createSlice({
     },
     //connections
     connectTwoPoints: (state) => {
-      const [begPoint, begType] = state.draft[0];
-      const [endPoint, endType] = state.draft[1];
+      const [begPoint, begType, begPosition] = state.draft[0];
+      const [endPoint, endType, endPosition] = state.draft[1];
       if (begPoint && endPoint) {
         state.lastId += 1;
         if (state.connection_type === "straight")
@@ -207,6 +207,8 @@ const elementsSlice = createSlice({
               begType,
               endType,
               line_type: state.connection_type,
+              begPosition,
+              endPosition,
             },
           ];
       }

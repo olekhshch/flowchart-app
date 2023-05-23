@@ -1,10 +1,16 @@
 import React from "react";
 import styled from "styled-components";
 import { APoint, ChartNode } from "../features/elements/elementsTypes";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../app/store";
 import ChartPointEl from "./ChartPoint";
 import { Point } from "./ChartPoint";
+import {
+  addToDraft,
+  clearDraft,
+  connectTwoPoints,
+} from "../features/elements/elementsSlice";
+import { setMode } from "../features/general/generalSlice";
 
 interface APProps {
   point: APoint;
@@ -16,10 +22,15 @@ interface styledProps {
 }
 
 const AnchorPoint = ({ point, parent }: APProps) => {
-  const { w, h } = useSelector((state: RootState) => state.elements.node_size);
-  const { scale } = useSelector((state: RootState) => state.general);
+  const {
+    node_size: { w, h },
+    draft,
+  } = useSelector((state: RootState) => state.elements);
+  const { scale, mode } = useSelector((state: RootState) => state.general);
   const { coordinates } = parent;
   const { position } = point;
+
+  const dispatch = useDispatch();
 
   const pointCoordinates = { top: 0, left: 0 };
   switch (position) {
@@ -40,26 +51,20 @@ const AnchorPoint = ({ point, parent }: APProps) => {
       pointCoordinates.left = coordinates.left - 2;
   }
 
-  // const coord = { top: "", left: "" };
-  // switch (position) {
-  //   case "top":
-  //     coord.top = "-3px";
-  //     coord.left = "50% - 3px";
-  //     break;
-  //   case "right":
-  //     coord.top = "50% - 3px";
-  //     coord.left = "100% - 3px";
-  //     break;
-  //   case "bottom":
-  //     coord.top = "100% - 3px";
-  //     coord.left = "50% - 3px";
-  //     break;
-  //   case "left":
-  //     coord.top = "50% - 3px";
-  //     coord.left = "-3px";
-  // }
-  // return <Point coordinates={coord} onMouseDown={(e) => e.stopPropagation()} />;
-  return <Point coordinates={pointCoordinates} scale={scale} />;
+  const handleClick = () => {
+    if (mode === "connect_points") {
+      dispatch(addToDraft([parent.id, "anchor_point", point.position]));
+      if (draft.length === 1) {
+        dispatch(setMode("edit"));
+        dispatch(connectTwoPoints());
+        dispatch(clearDraft());
+      }
+    }
+  };
+
+  return (
+    <Point coordinates={pointCoordinates} scale={scale} onClick={handleClick} />
+  );
 };
 
 export default AnchorPoint;

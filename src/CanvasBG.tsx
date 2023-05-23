@@ -47,6 +47,7 @@ const CanvasBG = () => {
     const y = (y0 - top) / scale;
 
     setMouseCoordinates({ x, y });
+    window.removeEventListener("mousemove", getCanvasCoordinatesOfMouse);
   };
 
   const previewPoint = (e: MouseEvent) => {

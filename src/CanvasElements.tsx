@@ -13,9 +13,10 @@ import {
 } from "./features/elements/elementsTypes";
 
 const CanvasElements = (props: { scale: number }) => {
-  const { mode } = useSelector((state: RootState) => state.general);
+  const { mode, scale } = useSelector((state: RootState) => state.general);
   const {
     elements: { nodes, points, anchorPoints, lines, texts, connections },
+    node_size,
   } = useSelector((state: RootState) => state.elements);
   return (
     <ElementsContainer id="elements-container" mode={mode}>
@@ -42,22 +43,105 @@ const CanvasElements = (props: { scale: number }) => {
       })}
       <svg width="100%" height="100%">
         {connections.map((connection) => {
+          let begPoint: ChartPoint = {
+            id: "0",
+            coordinates: { x: 0, y: 0 },
+            type: "point",
+          };
+          let endPoint: ChartPoint = {
+            id: "0",
+            coordinates: { x: 0, y: 0 },
+            type: "point",
+          };
           if (connection.line_type === "straight") {
-            const { beginningPointId, endPointId } = connection;
-            let begPoint0: ChartPoint | APoint;
-            let endPoint0: ChartPoint | APoint;
-            let begPoint: ChartPoint;
-            let endPoint: ChartPoint;
-            begPoint = points.find((point) => point.id === beginningPointId)!;
-            endPoint = points.find((point) => point.id === endPointId)!;
+            const {
+              beginningPointId,
+              endPointId,
+              begType,
+              endType,
+              begPosition,
+              endPosition,
+            } = connection;
+            if (begType === "anchor_point") {
+              const node = nodes.find((node) => node.id === beginningPointId);
+              if (node) {
+                const {
+                  coordinates: { left, top },
+                } = node;
+                let x: number = left;
+                let y: number = top;
+                switch (begPosition) {
+                  case "top":
+                    y = top;
+                    x = left + node_size.w * 0.5 + 1;
+                    break;
+                  case "right":
+                    y = top + 0.5 * node_size.h + 2;
+                    x = left + node_size.w;
+                    break;
+                  case "bottom":
+                    y = top + node_size.h;
+                    x = left + 0.5 * node_size.w + 1;
+                    break;
+                  case "left":
+                    y = top + 0.5 * node_size.h + 2;
+                    x = left;
+                    break;
+                }
+                begPoint = {
+                  id: beginningPointId,
+                  coordinates: { x, y },
+                  type: "anchor_point",
+                };
+              }
+            } else {
+              begPoint = points.find((point) => point.id === beginningPointId)!;
+            }
+            if (endType === "anchor_point") {
+              const node = nodes.find((node) => node.id === endPointId);
+              if (node) {
+                const {
+                  coordinates: { left, top },
+                } = node;
+                let x: number = left;
+                let y: number = top;
+                switch (endPosition) {
+                  case "top":
+                    y = top;
+                    x = left + node_size.w * 0.5 + 1;
+                    break;
+                  case "right":
+                    y = top + 0.5 * node_size.h + 2;
+                    x = left + node_size.w;
+                    break;
+                  case "bottom":
+                    y = top + node_size.h;
+                    x = left + 0.5 * node_size.w + 1;
+                    break;
+                  case "left":
+                    y = top + 0.5 * node_size.h + 2;
+                    x = left;
+                    break;
+                }
+                endPoint = {
+                  id: endPointId,
+                  coordinates: { x, y },
+                  type: "anchor_point",
+                };
+              }
+            } else {
+              endPoint = points.find((point) => point.id === endPointId)!;
+            }
 
-            return (
-              <Line
-                key={connection.id}
-                begPoint={begPoint}
-                endPoint={endPoint}
-              />
-            );
+            if (begPoint && endPoint) {
+              return (
+                <Line
+                  key={connection.id}
+                  begPoint={begPoint}
+                  endPoint={endPoint}
+                />
+              );
+            }
           }
         })}
         {lines.map((line) => {

@@ -17,10 +17,12 @@ export interface CNode {
 
 export type ChartNode = ChartElement & CNode;
 
+export type APPositions = "top" | "left" | "right" | "bottom";
+
 export interface APoint {
   id: string;
   parentNodeId: string;
-  position: "top" | "left" | "right" | "bottom";
+  position: APPositions;
 }
 
 export type AnchorPoint = APoint & ChartElement;
@@ -39,7 +41,7 @@ export type ChartPoint = CPoint & ChartElement;
 export interface ElementsState {
   lastId: number;
   node_size: { w: number; h: number };
-  draft: [string, JointType][];
+  draft: [string, JointType, APPositions | null][];
   connection_type: "straight" | "bezier";
   elements: {
     nodes: ChartNode[];
@@ -86,4 +88,6 @@ export interface ChartConnection {
   endPointId: string;
   begType: JointType;
   endType: JointType;
+  begPosition: APPositions | null;
+  endPosition: APPositions | null;
 }
