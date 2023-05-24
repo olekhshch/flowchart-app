@@ -38,11 +38,14 @@ export interface CPoint {
 
 export type ChartPoint = CPoint & ChartElement;
 
+export type ConnectionType = "straight" | "bezier" | "broken";
+
 export interface ElementsState {
   lastId: number;
   node_size: { w: number; h: number };
   draft: [string, JointType, APPositions | null][];
-  connection_type: "straight" | "bezier";
+  connection_type: ConnectionType;
+  connection_dir: BrokenLineDirection;
   elements: {
     nodes: ChartNode[];
     points: ChartPoint[];
@@ -81,13 +84,17 @@ export interface ChartCircle {
   strokeColour: string;
 }
 
+export type BrokenLineDirection = "H" | "V" | null;
+
 export interface ChartConnection {
   id: string;
-  line_type: "straight" | "bezier";
+  line_type: ConnectionType;
   beginningPointId: string;
   endPointId: string;
   begType: JointType;
   endType: JointType;
   begPosition: APPositions | null;
   endPosition: APPositions | null;
+  direction: BrokenLineDirection;
+  turnCoordinate: number;
 }

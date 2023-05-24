@@ -11,6 +11,7 @@ import {
   ChartPoint,
   JointType,
 } from "./features/elements/elementsTypes";
+import BrokenLine from "./canvas_elements/BrokenLine";
 
 const CanvasElements = (props: { scale: number }) => {
   const { mode, scale } = useSelector((state: RootState) => state.general);
@@ -51,23 +52,25 @@ const CanvasElements = (props: { scale: number }) => {
         {connections.map((connection) => {
           let begPoint: ChartPoint = {
             id: "0",
-            coordinates: { x: 0, y: 0 },
+            coordinates: { x: 10, y: 10 },
             type: "point",
           };
           let endPoint: ChartPoint = {
             id: "0",
-            coordinates: { x: 0, y: 0 },
+            coordinates: { x: 200, y: 200 },
             type: "point",
           };
+          const {
+            beginningPointId,
+            endPointId,
+            begType,
+            endType,
+            begPosition,
+            endPosition,
+            direction,
+            turnCoordinate,
+          } = connection;
           if (connection.line_type === "straight") {
-            const {
-              beginningPointId,
-              endPointId,
-              begType,
-              endType,
-              begPosition,
-              endPosition,
-            } = connection;
             if (begType === "anchor_point") {
               const node = nodes.find((node) => node.id === beginningPointId);
               if (node) {
@@ -148,6 +151,85 @@ const CanvasElements = (props: { scale: number }) => {
                 />
               );
             }
+          } else if (connection.line_type === "broken") {
+            if (begType === "anchor_point") {
+              const node = nodes.find((node) => node.id === beginningPointId);
+              if (node) {
+                const {
+                  coordinates: { left, top },
+                } = node;
+                let x: number = left;
+                let y: number = top;
+                switch (begPosition) {
+                  case "top":
+                    y = top;
+                    x = left + node_size.w * 0.5 + 1;
+                    break;
+                  case "right":
+                    y = top + 0.5 * node_size.h + 2;
+                    x = left + node_size.w;
+                    break;
+                  case "bottom":
+                    y = top + node_size.h;
+                    x = left + 0.5 * node_size.w + 1;
+                    break;
+                  case "left":
+                    y = top + 0.5 * node_size.h + 2;
+                    x = left;
+                    break;
+                }
+                begPoint = {
+                  id: beginningPointId,
+                  coordinates: { x, y },
+                  type: "anchor_point",
+                };
+              }
+            } else {
+              begPoint = points.find((point) => point.id === beginningPointId)!;
+            }
+            if (endType === "anchor_point") {
+              const node = nodes.find((node) => node.id === endPointId);
+              if (node) {
+                const {
+                  coordinates: { left, top },
+                } = node;
+                let x: number = left;
+                let y: number = top;
+                switch (endPosition) {
+                  case "top":
+                    y = top;
+                    x = left + node_size.w * 0.5 + 1;
+                    break;
+                  case "right":
+                    y = top + 0.5 * node_size.h + 2;
+                    x = left + node_size.w;
+                    break;
+                  case "bottom":
+                    y = top + node_size.h;
+                    x = left + 0.5 * node_size.w + 1;
+                    break;
+                  case "left":
+                    y = top + 0.5 * node_size.h + 2;
+                    x = left;
+                    break;
+                }
+                endPoint = {
+                  id: endPointId,
+                  coordinates: { x, y },
+                  type: "anchor_point",
+                };
+              }
+            } else {
+              endPoint = points.find((point) => point.id === endPointId)!;
+            }
+            return (
+              <BrokenLine
+                begPoint={begPoint}
+                endPoint={endPoint}
+                direction={direction}
+                turnCoordinate={turnCoordinate}
+              />
+            );
           }
         })}
         {lines.map((line) => {

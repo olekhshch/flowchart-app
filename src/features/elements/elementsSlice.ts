@@ -15,6 +15,7 @@ import {
   APoint,
   CPoint,
   PointCoordinates,
+  ConnectionType,
 } from "./elementsTypes";
 
 const initialNodeCoordinates: NodeCoordinates = {
@@ -26,6 +27,7 @@ const initialState: ElementsState = {
   lastId: 0,
   draft: [],
   connection_type: "straight",
+  connection_dir: "V",
   node_size: { w: 140, h: 50 },
   elements: {
     nodes: [],
@@ -193,25 +195,30 @@ const elementsSlice = createSlice({
       });
     },
     //connections
+    setConnectionType: (state, action: PayloadAction<ConnectionType>) => {
+      const type = action.payload;
+      state.connection_type = type;
+    },
     connectTwoPoints: (state) => {
       const [begPoint, begType, begPosition] = state.draft[0];
       const [endPoint, endType, endPosition] = state.draft[1];
       if (begPoint && endPoint) {
         state.lastId += 1;
-        if (state.connection_type === "straight")
-          state.elements.connections = [
-            ...state.elements.connections,
-            {
-              id: state.lastId.toString(),
-              beginningPointId: begPoint,
-              endPointId: endPoint,
-              begType,
-              endType,
-              line_type: state.connection_type,
-              begPosition,
-              endPosition,
-            },
-          ];
+        state.elements.connections = [
+          ...state.elements.connections,
+          {
+            id: state.lastId.toString(),
+            beginningPointId: begPoint,
+            endPointId: endPoint,
+            begType,
+            endType,
+            line_type: state.connection_type,
+            begPosition,
+            endPosition,
+            direction: state.connection_dir,
+            turnCoordinate: 110,
+          },
+        ];
       }
     },
     addToDraft: (state, { payload }) => {
@@ -236,6 +243,7 @@ export const {
   addTextLine,
   setTextLineValue,
   setTextCoordinates,
+  setConnectionType,
   connectTwoPoints,
   addToDraft,
   clearDraft,

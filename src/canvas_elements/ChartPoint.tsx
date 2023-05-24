@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useContext, useRef } from "react";
 import {
   addToDraft,
   clearDraft,
@@ -10,6 +10,7 @@ import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../app/store";
 import { setMode } from "../features/general/generalSlice";
+import { MenuContext } from "../context";
 
 interface CPProps {
   point: ChartPoint;
@@ -22,6 +23,8 @@ interface styledProps {
 }
 
 const ChartPointEl = ({ point, scale }: CPProps) => {
+  const { setIsMenuOpen } = useContext(MenuContext);
+
   const dispatch = useDispatch();
 
   const { mode } = useSelector((state: RootState) => state.general);
@@ -67,6 +70,7 @@ const ChartPointEl = ({ point, scale }: CPProps) => {
         dispatch(setMode("edit"));
         dispatch(connectTwoPoints());
         dispatch(clearDraft());
+        setIsMenuOpen(false);
       }
     }
   };

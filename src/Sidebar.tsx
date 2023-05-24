@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import styled from "styled-components";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "./app/store";
@@ -9,6 +9,7 @@ import {
   addPoint,
   addTextLine,
 } from "./features/elements/elementsSlice";
+import { MenuContext } from "./context";
 
 type PointDraft = {
   id: string;
@@ -17,6 +18,7 @@ type PointDraft = {
 };
 
 const Sidebar = () => {
+  const { setIsMenuOpen } = useContext(MenuContext);
   const { isSBCollapsed, scale } = useSelector(
     (state: RootState) => state.general
   );
@@ -121,6 +123,7 @@ const Sidebar = () => {
   };
 
   const connectPointsMode = () => {
+    setIsMenuOpen(true);
     dispatch(setMode("connect_points"));
   };
 
@@ -232,7 +235,7 @@ const Button = styled.button`
   display: flex;
   z-index: 100;
   right: 20px;
-  bottom: 40px;
+  top: 40px;
   background: none;
   width: 1.2em;
   height: 1.2em;

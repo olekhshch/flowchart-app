@@ -106,10 +106,10 @@ const CanvasBG = () => {
     getCanvasCoordinatesOfMouse(e);
     const c = canvasBg.current!.getContext("2d")!;
     clearBG(canvasBg.current!);
+    c.beginPath();
     if (grid.isOn) {
       drawGrid(canvasBg.current!);
     }
-    c.beginPath();
     c.moveTo(scale * mouseCoordinates.x, scale * mouseCoordinates.y);
     c.lineTo(scale * (mouseCoordinates.x + 40), scale * mouseCoordinates.y);
     c.lineTo(

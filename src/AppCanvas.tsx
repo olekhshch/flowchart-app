@@ -50,7 +50,12 @@ const AppCanvas = () => {
       const dY = y - y0;
       const newLeft = left + dX;
       const newTop = top + dY;
-      dispatch(setCanvasCoordinates({ newLeft, newTop }));
+      dispatch(
+        setCanvasCoordinates({
+          newLeft: newLeft < 0 ? newLeft : 0,
+          newTop: newTop < 0 ? newTop : 0,
+        })
+      );
       window.addEventListener("mouseup", () => {
         window.removeEventListener("mousemove", handleMouseMove);
       });
