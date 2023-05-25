@@ -89,25 +89,59 @@ const ChartNodeEl = ({ node, scale }: ChartNodeProps) => {
     }
   };
 
+  // if (editMode) {
+  //   return (
+  //     <StyledForm
+  //       onSubmit={handleSubmit}
+  //       top={node.coordinates.top}
+  //       left={node.coordinates.left}
+  //       scale={scale}
+  //       onMouseDown={handleMouseDown}
+  //     >
+  //       <input
+  //         value={node.title}
+  //         style={{
+  //           width: `${inputSize.width}px`,
+  //         }}
+  //         placeholder="Can't be empty"
+  //         onClick={(e) => e.stopPropagation()}
+  //         onChange={handleInputChange}
+  //       ></input>
+  //     </StyledForm>
+  //   );
+  // }
+
   if (editMode) {
     return (
-      <StyledForm
-        onSubmit={handleSubmit}
+      <StyledNode
         top={node.coordinates.top}
         left={node.coordinates.left}
         scale={scale}
-        onMouseDown={handleMouseDown}
       >
-        <input
-          value={node.title}
-          style={{
-            width: `${inputSize.width}px`,
-          }}
-          placeholder="Can't be empty"
-          onClick={(e) => e.stopPropagation()}
-          onChange={handleInputChange}
-        ></input>
-      </StyledForm>
+        <form
+          onSubmit={handleSubmit}
+          style={{ width: w + "px", height: h + "px" }}
+        >
+          <textarea
+            value={node.title}
+            style={{
+              width: `${inputSize.width}px`,
+            }}
+            placeholder="Can't be empty"
+            onClick={(e) => e.stopPropagation()}
+            onChange={handleInputChange}
+          />
+          <div className="form-buttons-right">
+            <button className="form_btn">N</button>
+            <input
+              className="form_btn"
+              type="submit"
+              title="note"
+              value="S"
+            ></input>
+          </div>
+        </form>
+      </StyledNode>
     );
   }
 
@@ -124,9 +158,6 @@ const ChartNodeEl = ({ node, scale }: ChartNodeProps) => {
             {node.title}
           </span>
         </div>
-        {/* {anchorPointPositions.map((position) => {
-          return <AnchorPoint key={position} position={position} />;
-        })} */}
       </div>
     </StyledNode>
   );
@@ -142,6 +173,43 @@ const StyledNode = styled.article`
   position: absolute;
   top: ${(props: StyledCompProps) => props.top * props.scale}px;
   left: ${(props) => props.left * props.scale}px;
+
+  form {
+    background-color: var(--node-bg);
+    cursor: default;
+    text-overflow: ellipsis;
+    align-items: center;
+    overflow: hidden;
+    border-radius: 6px;
+    border: 1px solid white;
+  }
+
+  textarea {
+    resize: none;
+    background: none;
+    border: none;
+    padding: 2px;
+    margin: 2px 0;
+    height: 100%;
+  }
+
+  .form-buttons-right {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    right: -24px;
+    top: 0;
+  }
+
+  .form_btn {
+    background: none;
+    border: 2px solid var(--node-bg);
+    border-radius: 4px;
+    padding: 0 4px;
+    color: var(--node-bg);
+    cursor: pointer;
+  }
 
   .node {
     background-color: var(--node-bg);

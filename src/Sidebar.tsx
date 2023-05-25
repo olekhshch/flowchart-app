@@ -154,18 +154,8 @@ const Sidebar = () => {
           <ul>
             <li onClick={addNodeMode}>Node</li>
             <li onClick={connectPointsMode}>Connection</li>
-          </ul>
-        </section>
-        <section className="sb-section">
-          <h3>Shapes</h3>
-          <ul>
             <li onClick={addLineMode}>Line</li>
             <li onClick={addPointMode}>Point</li>
-          </ul>
-        </section>
-        <section className="sb-section">
-          <h3>Text elements</h3>
-          <ul>
             <li onClick={addTextLineMode}>Text line</li>
             <li>Text block</li>
           </ul>
@@ -194,6 +184,7 @@ const StyledSB = styled.aside`
   }
 
   .sb-section h3 {
+    margin-top: 1em;
     font-weight: normal;
     border-bottom: 1px solid white;
   }

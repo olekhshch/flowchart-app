@@ -43,7 +43,7 @@ export type ConnectionType = "straight" | "bezier" | "broken";
 export interface ElementsState {
   lastId: number;
   node_size: { w: number; h: number };
-  draft: [string, JointType, APPositions | null][];
+  draft: [string, JointType, PointCoordinates, APPositions | null][];
   connection_type: ConnectionType;
   connection_dir: BrokenLineDirection;
   elements: {

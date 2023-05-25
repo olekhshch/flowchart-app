@@ -5,7 +5,10 @@ import {
   connectTwoPoints,
   setPointCoordinates,
 } from "../features/elements/elementsSlice";
-import { ChartPoint } from "../features/elements/elementsTypes";
+import {
+  ChartPoint,
+  PointCoordinates,
+} from "../features/elements/elementsTypes";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../app/store";
@@ -18,7 +21,7 @@ interface CPProps {
 }
 
 interface styledProps {
-  coordinates: { top: number; left: number };
+  coordinates: PointCoordinates;
   scale: number;
 }
 
@@ -34,9 +37,9 @@ const ChartPointEl = ({ point, scale }: CPProps) => {
     coordinates: { x, y },
   } = point;
 
-  const elCoord = {
-    top: y - 3,
-    left: x - 3,
+  const elCoord: PointCoordinates = {
+    y: y - 3,
+    x: x - 3,
   };
 
   const handleMouseDown = (ev: React.MouseEvent) => {
@@ -65,7 +68,7 @@ const ChartPointEl = ({ point, scale }: CPProps) => {
 
   const handleClick = () => {
     if (mode === "connect_points") {
-      dispatch(addToDraft([point.id, point.type, null]));
+      dispatch(addToDraft([point.id, point.type, point.coordinates, null]));
       if (draft.length === 1) {
         dispatch(setMode("edit"));
         dispatch(connectTwoPoints());
@@ -91,8 +94,8 @@ export default ChartPointEl;
 
 export const Point = styled.div`
   position: absolute;
-  left: ${(props: styledProps) => props.coordinates.left * props.scale}px;
-  top: ${(props: styledProps) => props.coordinates.top * props.scale}px;
+  left: ${(props: styledProps) => props.coordinates.x * props.scale}px;
+  top: ${(props: styledProps) => props.coordinates.y * props.scale}px;
   width: ${(props) => props.scale * 6}px;
   height: ${(props) => props.scale * 6}px;
   background-color: white;

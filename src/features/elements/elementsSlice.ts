@@ -200,10 +200,14 @@ const elementsSlice = createSlice({
       state.connection_type = type;
     },
     connectTwoPoints: (state) => {
-      const [begPoint, begType, begPosition] = state.draft[0];
-      const [endPoint, endType, endPosition] = state.draft[1];
+      const [begPoint, begType, BegCoordinates, begPosition] = state.draft[0];
+      const [endPoint, endType, EndCoordinates, endPosition] = state.draft[1];
       if (begPoint && endPoint) {
         state.lastId += 1;
+        const d =
+          state.connection_dir === "H"
+            ? (BegCoordinates.x + EndCoordinates.x) / 2
+            : (BegCoordinates.y + EndCoordinates.y) / 2;
         state.elements.connections = [
           ...state.elements.connections,
           {
@@ -216,7 +220,7 @@ const elementsSlice = createSlice({
             begPosition,
             endPosition,
             direction: state.connection_dir,
-            turnCoordinate: 110,
+            turnCoordinate: d,
           },
         ];
       }

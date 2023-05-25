@@ -56,9 +56,11 @@ const AppCanvas = () => {
           newTop: newTop < 0 ? newTop : 0,
         })
       );
-      window.addEventListener("mouseup", () => {
+      const handleMouseUp = () => {
         window.removeEventListener("mousemove", handleMouseMove);
-      });
+        window.removeEventListener("mousemove", handleMouseUp);
+      };
+      window.addEventListener("mouseup", handleMouseUp);
     };
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseup", () => {

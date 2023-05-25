@@ -30,8 +30,8 @@ const Minibar = () => {
         >
           .
         </button>
-        <div className="scale-info">Scale: {scale}</div>
       </div>
+      <div className="scale-info">Scale: {scale}</div>
     </StyledMinibar>
   );
 };
@@ -73,7 +73,11 @@ const StyledMinibar = styled.section`
   }
 
   .scale-info {
+    position: absolute;
+    bottom: 20px;
     font-size: 14px;
+    color: var(--main);
+    user-select: none;
   }
 `;
 

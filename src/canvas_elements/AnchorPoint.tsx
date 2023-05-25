@@ -1,6 +1,10 @@
 import React from "react";
 import styled from "styled-components";
-import { APoint, ChartNode } from "../features/elements/elementsTypes";
+import {
+  APoint,
+  ChartNode,
+  PointCoordinates,
+} from "../features/elements/elementsTypes";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../app/store";
 import ChartPointEl from "./ChartPoint";
@@ -18,7 +22,7 @@ interface APProps {
 }
 
 interface styledProps {
-  coordinates: { top: string; left: string };
+  coordinates: PointCoordinates;
 }
 
 const AnchorPoint = ({ point, parent }: APProps) => {
@@ -32,28 +36,35 @@ const AnchorPoint = ({ point, parent }: APProps) => {
 
   const dispatch = useDispatch();
 
-  const pointCoordinates = { top: 0, left: 0 };
+  const pointCoordinates: PointCoordinates = { y: 0, x: 0 };
   switch (position) {
     case "top":
-      pointCoordinates.top = coordinates.top - 2;
-      pointCoordinates.left = coordinates.left + w * 0.5 - 2;
+      pointCoordinates.y = coordinates.top - 2;
+      pointCoordinates.x = coordinates.left + w * 0.5 - 2;
       break;
     case "right":
-      pointCoordinates.top = coordinates.top + 0.5 * h - 1 * scale;
-      pointCoordinates.left = coordinates.left + w - 2;
+      pointCoordinates.y = coordinates.top + 0.5 * h - 1 * scale;
+      pointCoordinates.x = coordinates.left + w - 2;
       break;
     case "bottom":
-      pointCoordinates.top = coordinates.top + h - 2;
-      pointCoordinates.left = coordinates.left + 0.5 * w - 2;
+      pointCoordinates.y = coordinates.top + h - 2;
+      pointCoordinates.x = coordinates.left + 0.5 * w - 2;
       break;
     case "left":
-      pointCoordinates.top = coordinates.top + 0.5 * h - 1 * scale;
-      pointCoordinates.left = coordinates.left - 2;
+      pointCoordinates.y = coordinates.top + 0.5 * h - 1 * scale;
+      pointCoordinates.x = coordinates.left - 2;
   }
 
   const handleClick = () => {
     if (mode === "connect_points") {
-      dispatch(addToDraft([parent.id, "anchor_point", point.position]));
+      dispatch(
+        addToDraft([
+          parent.id,
+          "anchor_point",
+          pointCoordinates,
+          point.position,
+        ])
+      );
       if (draft.length === 1) {
         dispatch(setMode("edit"));
         dispatch(connectTwoPoints());
