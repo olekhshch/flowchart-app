@@ -1,7 +1,7 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { initialState } from "./initialState";
 
-const scaleValues: [1, 1.25, 1.5, 2, 3] = [1, 1.25, 1.5, 2, 3];
+const scaleValues: [0.75, 1, 1.25, 1.5, 2, 3] = [0.75, 1, 1.25, 1.5, 2, 3];
 
 type Mode =
   | "view"
@@ -9,6 +9,7 @@ type Mode =
   | "set_node"
   | "set_point"
   | "set_line"
+  | "set_circle"
   | "set_textline"
   | "connect_points";
 
@@ -16,13 +17,14 @@ export interface GeneralSettingsState {
   isSBCollapsed: boolean;
   canvasSize: number;
   canvasCoordinates: { left: number; top: number };
-  scale: 1 | 1.25 | 1.5 | 2 | 3;
-  scaleValues: [1, 1.25, 1.5, 2, 3];
+  scale: 0.75 | 1 | 1.25 | 1.5 | 2 | 3;
+  scaleValues: [0.75, 1, 1.25, 1.5, 2, 3];
   grid: {
     isOn: boolean;
     step: number;
   };
   mode: Mode;
+  isCanvasMoving: boolean;
 }
 
 export const generalSlice = createSlice({
@@ -48,11 +50,11 @@ export const generalSlice = createSlice({
       }
     },
     descreaseScale: (state) => {
-      if (state.scale !== 1) {
+      if (state.scale !== state.scaleValues[0]) {
         const currectScaleIndex = scaleValues.indexOf(state.scale);
         state.scale = scaleValues[currectScaleIndex - 1];
       } else {
-        state.scale = 1;
+        state.scale = state.scaleValues[0];
       }
     },
     turnGridOff: (state) => {

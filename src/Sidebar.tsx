@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "./app/store";
 import { openSB, closeSB, setMode } from "./features/general/generalSlice";
 import {
+  addCircle,
   addLine,
   addNode,
   addPoint,
@@ -127,6 +128,26 @@ const Sidebar = () => {
     dispatch(setMode("connect_points"));
   };
 
+  const createCircleMode = () => {
+    dispatch(setMode("set_circle"));
+    const elementsContainer = document.getElementById(
+      "elements-container"
+    ) as HTMLDivElement;
+    const { top, left } = elementsContainer.getBoundingClientRect();
+    const handleClick = (e: MouseEvent) => {
+      const pointId = lastId + 1;
+      const x0 = e.clientX;
+      const y0 = e.clientY;
+      const x = (x0 - left) / scale;
+      const y = (y0 - top) / scale;
+      dispatch(addPoint({ x, y }));
+      dispatch(addCircle(pointId.toString()));
+      dispatch(setMode("edit"));
+      elementsContainer.removeEventListener("click", handleClick);
+    };
+    elementsContainer.addEventListener("click", handleClick);
+  };
+
   const addTextLineMode = () => {
     const elementsContainer = document.getElementById(
       "elements-container"
@@ -154,6 +175,7 @@ const Sidebar = () => {
           <ul>
             <li onClick={addNodeMode}>Node</li>
             <li onClick={connectPointsMode}>Connection</li>
+            <li onClick={createCircleMode}>Circle</li>
             <li onClick={addLineMode}>Line</li>
             <li onClick={addPointMode}>Point</li>
             <li onClick={addTextLineMode}>Text line</li>

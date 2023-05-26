@@ -12,11 +12,20 @@ import {
   JointType,
 } from "./features/elements/elementsTypes";
 import BrokenLine from "./canvas_elements/BrokenLine";
+import ChartCircle from "./canvas_elements/ChartCircle";
 
 const CanvasElements = (props: { scale: number }) => {
   const { mode, scale } = useSelector((state: RootState) => state.general);
   const {
-    elements: { nodes, points, anchorPoints, lines, texts, connections },
+    elements: {
+      nodes,
+      points,
+      anchorPoints,
+      lines,
+      texts,
+      connections,
+      shapes,
+    },
     node_size,
   } = useSelector((state: RootState) => state.elements);
   return (
@@ -224,10 +233,12 @@ const CanvasElements = (props: { scale: number }) => {
             }
             return (
               <BrokenLine
+                key={connection.id}
                 begPoint={begPoint}
                 endPoint={endPoint}
                 direction={direction}
                 turnCoordinate={turnCoordinate}
+                id={connection.id}
               />
             );
           }
@@ -240,6 +251,16 @@ const CanvasElements = (props: { scale: number }) => {
           )!;
           const endPoint = points.find((point) => point.id === endPointId)!;
           return <Line key={line.id} begPoint={begPoint} endPoint={endPoint} />;
+        })}
+        {shapes.map((shape) => {
+          const { shape_name, centerPointId, r } = shape;
+          if (shape_name === "circle") {
+            const {
+              coordinates: { x, y },
+            } = points.find((point) => point.id === centerPointId)!;
+            return <ChartCircle x={x} y={y} r={r} />;
+          }
+          return <></>;
         })}
       </svg>
     </ElementsContainer>

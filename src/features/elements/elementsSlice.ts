@@ -16,12 +16,8 @@ import {
   CPoint,
   PointCoordinates,
   ConnectionType,
+  BrokenLineDirection,
 } from "./elementsTypes";
-
-const initialNodeCoordinates: NodeCoordinates = {
-  top: 10,
-  left: 10,
-};
 
 const initialState: ElementsState = {
   lastId: 0,
@@ -29,6 +25,14 @@ const initialState: ElementsState = {
   connection_type: "straight",
   connection_dir: "V",
   node_size: { w: 140, h: 50 },
+  selected: {
+    nodes: [],
+    points: [],
+    lines: [],
+    texts: [],
+    shapes: [],
+    connections: [],
+  },
   elements: {
     nodes: [],
     points: [],
@@ -199,6 +203,12 @@ const elementsSlice = createSlice({
       const type = action.payload;
       state.connection_type = type;
     },
+    setConnectionDirection: (
+      state,
+      { payload }: PayloadAction<BrokenLineDirection>
+    ) => {
+      state.connection_dir = payload;
+    },
     connectTwoPoints: (state) => {
       const [begPoint, begType, BegCoordinates, begPosition] = state.draft[0];
       const [endPoint, endType, EndCoordinates, endPosition] = state.draft[1];
@@ -206,8 +216,8 @@ const elementsSlice = createSlice({
         state.lastId += 1;
         const d =
           state.connection_dir === "H"
-            ? (BegCoordinates.x + EndCoordinates.x) / 2
-            : (BegCoordinates.y + EndCoordinates.y) / 2;
+            ? (BegCoordinates.y + EndCoordinates.y) / 2
+            : (BegCoordinates.x + EndCoordinates.x) / 2;
         state.elements.connections = [
           ...state.elements.connections,
           {
@@ -224,6 +234,32 @@ const elementsSlice = createSlice({
           },
         ];
       }
+    },
+    setBrokenLineTurnCoord: (
+      state,
+      { payload }: PayloadAction<{ id: string; newCoord: number }>
+    ) => {
+      const { id, newCoord } = payload;
+      state.elements.connections = state.elements.connections.map(
+        (connection) => {
+          if (connection.id === id) {
+            return { ...connection, turnCoordinate: newCoord };
+          }
+          return connection;
+        }
+      );
+    },
+    //shapes
+    addCircle: (state, { payload }: PayloadAction<string>) => {
+      state.lastId += 1;
+      const newCircle: ChartShape & ChartCircle = {
+        id: state.lastId.toString(),
+        r: 20,
+        shape_name: "circle",
+        strokeColour: "main",
+        centerPointId: payload,
+      };
+      state.elements.shapes = [...state.elements.shapes, newCircle];
     },
     addToDraft: (state, { payload }) => {
       console.log(payload);
@@ -248,7 +284,10 @@ export const {
   setTextLineValue,
   setTextCoordinates,
   setConnectionType,
+  setConnectionDirection,
   connectTwoPoints,
+  setBrokenLineTurnCoord,
   addToDraft,
   clearDraft,
+  addCircle,
 } = elementsSlice.actions;

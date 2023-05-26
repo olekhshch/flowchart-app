@@ -46,6 +46,14 @@ export interface ElementsState {
   draft: [string, JointType, PointCoordinates, APPositions | null][];
   connection_type: ConnectionType;
   connection_dir: BrokenLineDirection;
+  selected: {
+    nodes: ChartNode[];
+    points: ChartPoint[];
+    lines: (ChartLine & ChartElement)[];
+    texts: TextElement[];
+    shapes: (ChartShape & ChartCircle)[];
+    connections: ChartConnection[];
+  };
   elements: {
     nodes: ChartNode[];
     points: ChartPoint[];
@@ -82,6 +90,7 @@ export interface ChartCircle {
   shape_name: "circle";
   r: number;
   strokeColour: string;
+  centerPointId: string;
 }
 
 export type BrokenLineDirection = "H" | "V" | null;

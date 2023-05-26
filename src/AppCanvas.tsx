@@ -41,31 +41,33 @@ const AppCanvas = () => {
   };
 
   const handleMouseDown = (ev: React.MouseEvent) => {
-    const x0 = ev.clientX;
-    const y0 = ev.clientY;
-    const handleMouseMove = (e: MouseEvent) => {
-      const x = e.clientX;
-      const y = e.clientY;
-      const dX = x - x0;
-      const dY = y - y0;
-      const newLeft = left + dX;
-      const newTop = top + dY;
-      dispatch(
-        setCanvasCoordinates({
-          newLeft: newLeft < 0 ? newLeft : 0,
-          newTop: newTop < 0 ? newTop : 0,
-        })
-      );
-      const handleMouseUp = () => {
-        window.removeEventListener("mousemove", handleMouseMove);
-        window.removeEventListener("mousemove", handleMouseUp);
+    if (ev.button === 1) {
+      const x0 = ev.clientX;
+      const y0 = ev.clientY;
+      const handleMouseMove = (e: MouseEvent) => {
+        const x = e.clientX;
+        const y = e.clientY;
+        const dX = x - x0;
+        const dY = y - y0;
+        const newLeft = left + dX;
+        const newTop = top + dY;
+        dispatch(
+          setCanvasCoordinates({
+            newLeft: newLeft < 0 ? newLeft : 0,
+            newTop: newTop < 0 ? newTop : 0,
+          })
+        );
+        const handleMouseUp = () => {
+          window.removeEventListener("mousemove", handleMouseMove);
+          window.removeEventListener("mousemove", handleMouseUp);
+        };
+        window.addEventListener("mouseup", handleMouseUp);
       };
-      window.addEventListener("mouseup", handleMouseUp);
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mouseup", () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-    });
+      window.addEventListener("mousemove", handleMouseMove);
+      window.addEventListener("mouseup", () => {
+        window.removeEventListener("mousemove", handleMouseMove);
+      });
+    }
   };
 
   const zoomCanvas = (e: React.WheelEvent) => {

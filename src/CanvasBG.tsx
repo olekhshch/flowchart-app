@@ -25,8 +25,9 @@ const CanvasBG = () => {
 
   const drawGrid = (canvasEl: HTMLCanvasElement) => {
     clearBG(canvasEl);
-    const a = canvasEl.width;
+    const a = canvasEl.width / (scale <= 1 ? scale : 1);
     const n = a / grid.step;
+    console.log(n);
     const c = canvasEl.getContext("2d")!;
     c.strokeStyle = "rgb(211, 198, 218)";
     for (let i = 1; i < n; i++) {
