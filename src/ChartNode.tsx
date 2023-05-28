@@ -1,14 +1,16 @@
 import React, { ChangeEvent, FormEvent, useRef, useState } from "react";
 import {
-  anchorPointPositions,
+  clearSelection,
+  deselectElement,
   renameNode,
+  selectElement,
   setNodeCoordinates,
 } from "./features/elements/elementsSlice";
 import { ChartNode } from "./features/elements/elementsTypes";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import AnchorPoint from "./canvas_elements/AnchorPoint";
 import { RootState } from "./app/store";
+import { MenuContext } from "./context";
 
 interface ChartNodeProps {
   node: ChartNode;
@@ -19,18 +21,36 @@ interface StyledCompProps {
   top: number;
   left: number;
   scale: number;
+  isSelected: boolean;
 }
 
 const ChartNodeEl = ({ node, scale }: ChartNodeProps) => {
   const dispatch = useDispatch();
-  const nodeEl = useRef<HTMLSpanElement>(null);
+
+  const spanEl = useRef<HTMLSpanElement>(null);
   const {
     node_size: { w, h },
+    selectedIds,
   } = useSelector((state: RootState) => state.elements);
 
   const [editMode, setEditMode] = useState(false);
   const [inputSize, setInputSize] = useState({ width: 100, height: 22 });
   const [nodeTitle, setNodeTitle] = useState(node.title);
+
+  const { setIsMenuOpen } = React.useContext(MenuContext);
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (!e.shiftKey && e.button === 0) {
+      dispatch(clearSelection());
+    }
+
+    dispatch(selectElement({ elementId: node.id, elementType: node.type }));
+    if (e.shiftKey && selectedIds.nodes.includes(node.id)) {
+      dispatch(deselectElement({ elementId: node.id, elementType: node.type }));
+    }
+
+    setIsMenuOpen(true);
+  };
 
   const handleMouseDown = (ev: React.MouseEvent) => {
     const x0 = ev.clientX;
@@ -58,9 +78,8 @@ const ChartNodeEl = ({ node, scale }: ChartNodeProps) => {
   };
 
   const handleDoubleClick = (ev: React.MouseEvent) => {
-    const { width, height } = nodeEl.current!.getBoundingClientRect();
+    const { width, height } = spanEl.current!.getBoundingClientRect();
     setInputSize({ width, height });
-    console.log(inputSize);
     setEditMode(true);
     ev.stopPropagation();
   };
@@ -89,34 +108,13 @@ const ChartNodeEl = ({ node, scale }: ChartNodeProps) => {
     }
   };
 
-  // if (editMode) {
-  //   return (
-  //     <StyledForm
-  //       onSubmit={handleSubmit}
-  //       top={node.coordinates.top}
-  //       left={node.coordinates.left}
-  //       scale={scale}
-  //       onMouseDown={handleMouseDown}
-  //     >
-  //       <input
-  //         value={node.title}
-  //         style={{
-  //           width: `${inputSize.width}px`,
-  //         }}
-  //         placeholder="Can't be empty"
-  //         onClick={(e) => e.stopPropagation()}
-  //         onChange={handleInputChange}
-  //       ></input>
-  //     </StyledForm>
-  //   );
-  // }
-
   if (editMode) {
     return (
       <StyledNode
         top={node.coordinates.top}
         left={node.coordinates.left}
         scale={scale}
+        isSelected={false}
       >
         <form
           onSubmit={handleSubmit}
@@ -150,11 +148,13 @@ const ChartNodeEl = ({ node, scale }: ChartNodeProps) => {
       top={node.coordinates.top}
       left={node.coordinates.left}
       scale={scale}
+      isSelected={selectedIds.nodes.includes(node.id)}
+      onClick={handleClick}
       onMouseDown={handleMouseDown}
     >
       <div>
         <div className="node" style={{ width: w + "px", height: h + "px" }}>
-          <span ref={nodeEl} onDoubleClick={handleDoubleClick}>
+          <span ref={spanEl} onDoubleClick={handleDoubleClick}>
             {node.title}
           </span>
         </div>
@@ -181,7 +181,8 @@ const StyledNode = styled.article`
     align-items: center;
     overflow: hidden;
     border-radius: 6px;
-    border: 1px solid white;
+    border: 1px solid
+      ${(props) => (props.isSelected ? "orange" : "var(--main)")};
   }
 
   textarea {
@@ -218,11 +219,12 @@ const StyledNode = styled.article`
     align-items: center;
     overflow: hidden;
     border-radius: 6px;
-    border: 1px solid white;
+    border: 1px solid ${(props) => (props.isSelected ? "orange" : "white")};
   }
 
   .node:hover {
-    border: 1px solid var(--main);
+    border: 1px solid
+      ${(props) => (props.isSelected ? "orange" : "var(--main)")};
   }
 
   span {
@@ -231,26 +233,5 @@ const StyledNode = styled.article`
     text-overflow: ellipsis;
     overflow: hidden;
     font-size: var(--node-font-size);
-  }
-`;
-
-const StyledForm = styled.form`
-  padding: 4px 10px;
-  min-width: 100px;
-  max-width: 220px;
-  text-align: center;
-  scale: ${(props) => props.scale};
-  position: absolute;
-  top: ${(props: StyledCompProps) => props.top * props.scale}px;
-  left: ${(props) => props.left * props.scale}px;
-  background-color: gray;
-  cursor: default;
-  border: 2px solid black;
-
-  input {
-    background: none;
-    border: none;
-    border-bottom: 1px solid black;
-    text-overflow: ellipsis;
   }
 `;

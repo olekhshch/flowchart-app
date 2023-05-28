@@ -9,6 +9,7 @@ import {
   setCanvasCoordinates,
 } from "./features/general/generalSlice";
 import CanvasBG from "./CanvasBG";
+import { clearSelection } from "./features/elements/elementsSlice";
 
 interface Canvas {
   canvasSize: number;
@@ -25,20 +26,7 @@ const AppCanvas = () => {
     canvasSize,
     canvasCoordinates: { left, top },
     scale,
-    scaleValues,
   } = useSelector((state: RootState) => state.general);
-
-  const getLowerScale = () => {
-    const currentIndex = scaleValues.indexOf(scale);
-    return currentIndex > 0 ? scaleValues[currentIndex - 1] : scaleValues[0];
-  };
-
-  const getHigherScale = () => {
-    const currentIndex = scaleValues.indexOf(scale);
-    return currentIndex < scaleValues.length - 1
-      ? currentIndex + 1
-      : currentIndex;
-  };
 
   const handleMouseDown = (ev: React.MouseEvent) => {
     if (ev.button === 1) {
@@ -49,17 +37,27 @@ const AppCanvas = () => {
         const y = e.clientY;
         const dX = x - x0;
         const dY = y - y0;
-        const newLeft = left + dX;
-        const newTop = top + dY;
+        const newLeft0 = left + dX;
+        const newTop0 = top + dY;
+        const newValue = (value0: number) => {
+          if (value0 <= -window.innerWidth * 0.7) {
+            return -window.innerWidth * 0.7;
+          }
+          if (value0 > 0) {
+            return 0;
+          }
+          return value0;
+        };
         dispatch(
           setCanvasCoordinates({
-            newLeft: newLeft < 0 ? newLeft : 0,
-            newTop: newTop < 0 ? newTop : 0,
+            newLeft: newValue(newLeft0),
+            newTop: newValue(newTop0),
           })
         );
         const handleMouseUp = () => {
           window.removeEventListener("mousemove", handleMouseMove);
           window.removeEventListener("mousemove", handleMouseUp);
+          window.removeEventListener("mouseup", handleMouseUp);
         };
         window.addEventListener("mouseup", handleMouseUp);
       };

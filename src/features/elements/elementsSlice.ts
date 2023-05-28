@@ -5,19 +5,27 @@ import {
   TextElement,
   AnchorPoint,
   ChartCircle,
-  ChartConnection,
-  CNode,
   ChartElement,
   ChartNode,
   ChartPoint,
   ChartShape,
-  NodeCoordinates,
-  APoint,
-  CPoint,
   PointCoordinates,
   ConnectionType,
   BrokenLineDirection,
+  TypeOfElement,
+  selectedIdsType,
+  APPositions,
 } from "./elementsTypes";
+
+const emptySelection: selectedIdsType = {
+  nodes: [],
+  points: [],
+  anchor_points: [],
+  lines: [],
+  texts: [],
+  shapes: [],
+  connections: [],
+};
 
 const initialState: ElementsState = {
   lastId: 0,
@@ -25,18 +33,11 @@ const initialState: ElementsState = {
   connection_type: "straight",
   connection_dir: "V",
   node_size: { w: 140, h: 50 },
-  selected: {
-    nodes: [],
-    points: [],
-    lines: [],
-    texts: [],
-    shapes: [],
-    connections: [],
-  },
+  selectedIds: { ...emptySelection },
   elements: {
     nodes: [],
     points: [],
-    anchorPoints: [],
+    anchor_points: [],
     lines: [],
     texts: [],
     shapes: [],
@@ -44,7 +45,7 @@ const initialState: ElementsState = {
   },
 };
 
-export const anchorPointPositions: ("top" | "right" | "bottom" | "left")[] = [
+export const anchorPointPositions: APPositions[] = [
   "top",
   "right",
   "bottom",
@@ -77,8 +78,8 @@ const elementsSlice = createSlice({
           position,
           type: "anchor_point",
         };
-        state.elements.anchorPoints = [
-          ...state.elements.anchorPoints,
+        state.elements.anchor_points = [
+          ...state.elements.anchor_points,
           newAnchorPoint,
         ];
       });
@@ -268,6 +269,50 @@ const elementsSlice = createSlice({
     clearDraft: (state) => {
       state.draft = [];
     },
+    clearSelection: (state) => {
+      state.selectedIds = { ...emptySelection };
+    },
+    selectElement: (
+      state,
+      {
+        payload,
+      }: PayloadAction<{ elementId: string; elementType: TypeOfElement }>
+    ) => {
+      const { elementId, elementType } = payload;
+      console.log("select");
+      if (
+        state.selectedIds[`${elementType}s`] &&
+        !state.selectedIds[`${elementType}s`].includes(elementId)
+      ) {
+        state.selectedIds[`${elementType}s`].push(elementId);
+      }
+    },
+    deselectElement: (
+      state,
+      {
+        payload,
+      }: PayloadAction<{ elementId: string; elementType: TypeOfElement }>
+    ) => {
+      const { elementId, elementType } = payload;
+      if (state.selectedIds[`${elementType}s`]) {
+        state.selectedIds[`${elementType}s`] = state.selectedIds[
+          `${elementType}s`
+        ].filter((id) => id !== elementId);
+      }
+    },
+    leaveSelected: (state, { payload }: PayloadAction<`${TypeOfElement}s`>) => {
+      const savedSelection = [...state.selectedIds[payload]];
+      state.selectedIds = { ...emptySelection };
+      state.selectedIds[payload] = savedSelection;
+    },
+    // countSelected: (state) => {
+    //   const entries = Object.entries(state.selectedIds);
+    //   const countObj = entries.reduce((acc, [key, array]) => {
+    //     const num = array.length;
+    //     return {...acc, [key]: num, overalNumber: acc.overalNumber += num}
+    //   }, {overalNumber: 0});
+    //   return countObj;
+    // }
   },
 });
 
@@ -290,4 +335,8 @@ export const {
   addToDraft,
   clearDraft,
   addCircle,
+  clearSelection,
+  selectElement,
+  deselectElement,
+  leaveSelected,
 } = elementsSlice.actions;

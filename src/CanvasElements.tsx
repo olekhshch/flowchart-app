@@ -1,4 +1,4 @@
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { RootState } from "./app/store";
 import ChartNodeEl from "./ChartNode";
@@ -13,21 +13,31 @@ import {
 } from "./features/elements/elementsTypes";
 import BrokenLine from "./canvas_elements/BrokenLine";
 import ChartCircle from "./canvas_elements/ChartCircle";
+import { clearSelection } from "./features/elements/elementsSlice";
 
 const CanvasElements = (props: { scale: number }) => {
-  const { mode, scale } = useSelector((state: RootState) => state.general);
+  const { mode } = useSelector((state: RootState) => state.general);
   const {
     elements: {
       nodes,
       points,
-      anchorPoints,
+      anchor_points,
       lines,
       texts,
       connections,
       shapes,
     },
     node_size,
+    selectedIds,
   } = useSelector((state: RootState) => state.elements);
+
+  const dispatch = useDispatch();
+
+  const handleDeselectClick = (e: React.MouseEvent) => {
+    console.log("global deselect");
+    dispatch(clearSelection());
+  };
+
   return (
     <ElementsContainer id="elements-container" mode={mode}>
       {nodes.map((element) => {
@@ -36,7 +46,7 @@ const CanvasElements = (props: { scale: number }) => {
         );
       })}
       {mode !== "view" &&
-        anchorPoints.map((a_point) => {
+        anchor_points.map((a_point) => {
           const parentNode = nodes.find(
             (node) => node.id === a_point.parentNodeId
           );
@@ -57,7 +67,7 @@ const CanvasElements = (props: { scale: number }) => {
       {texts.map((text) => {
         return <TextLine key={text.id} data={text} />;
       })}
-      <svg width="100%" height="100%">
+      <svg width="100%" height="100%" onClick={handleDeselectClick}>
         {connections.map((connection) => {
           let begPoint: ChartPoint = {
             id: "0",
@@ -239,6 +249,7 @@ const CanvasElements = (props: { scale: number }) => {
                 direction={direction}
                 turnCoordinate={turnCoordinate}
                 id={connection.id}
+                elementType="connection"
               />
             );
           }
@@ -253,12 +264,22 @@ const CanvasElements = (props: { scale: number }) => {
           return <Line key={line.id} begPoint={begPoint} endPoint={endPoint} />;
         })}
         {shapes.map((shape) => {
-          const { shape_name, centerPointId, r } = shape;
+          const { shape_name, centerPointId, r, id } = shape;
           if (shape_name === "circle") {
             const {
               coordinates: { x, y },
             } = points.find((point) => point.id === centerPointId)!;
-            return <ChartCircle x={x} y={y} r={r} />;
+            return (
+              <ChartCircle
+                x={x}
+                y={y}
+                r={r}
+                id={id}
+                key={id}
+                pointId={centerPointId}
+                elementType="shape"
+              />
+            );
           }
           return <></>;
         })}

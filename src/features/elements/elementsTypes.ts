@@ -1,11 +1,50 @@
+export interface ElementsState {
+  lastId: number;
+  node_size: { w: number; h: number };
+  draft: [string, JointType, PointCoordinates, APPositions | null][];
+  connection_type: ConnectionType;
+  connection_dir: BrokenLineDirection;
+  selectedIds: selectedIdsType;
+  elements: ElementsStore & ElementsStoreKeys;
+}
+
+interface ElementsStore {
+  nodes: ChartNode[];
+  points: ChartPoint[];
+  anchor_points: AnchorPoint[];
+  lines: (ChartLine & ChartElement)[];
+  texts: TextElement[];
+  shapes: (ChartShape & ChartCircle)[];
+  connections: ChartConnection[];
+}
+
+export type selectedIdsType = {
+  [key in keyof TypeOfElement as `${TypeOfElement}s`]: string[];
+};
+
+type ElementsStoreKeys = {
+  [key in keyof TypeOfElement as `${TypeOfElement}s`]: any[];
+};
+
+export type NameOfElementsArrayKey = `${TypeOfElement}s`;
+
 export interface NodeCoordinates {
   top: number;
   left: number;
 }
 
+export type TypeOfElement =
+  | "node"
+  | "point"
+  | "line"
+  | "anchor_point"
+  | "connection"
+  | "shape"
+  | "text";
+
 export interface ChartElement {
   id: string;
-  type: "node" | "point" | "line" | "anchor_point";
+  type: TypeOfElement;
 }
 
 export interface CNode {
@@ -39,31 +78,6 @@ export interface CPoint {
 export type ChartPoint = CPoint & ChartElement;
 
 export type ConnectionType = "straight" | "bezier" | "broken";
-
-export interface ElementsState {
-  lastId: number;
-  node_size: { w: number; h: number };
-  draft: [string, JointType, PointCoordinates, APPositions | null][];
-  connection_type: ConnectionType;
-  connection_dir: BrokenLineDirection;
-  selected: {
-    nodes: ChartNode[];
-    points: ChartPoint[];
-    lines: (ChartLine & ChartElement)[];
-    texts: TextElement[];
-    shapes: (ChartShape & ChartCircle)[];
-    connections: ChartConnection[];
-  };
-  elements: {
-    nodes: ChartNode[];
-    points: ChartPoint[];
-    anchorPoints: AnchorPoint[];
-    lines: (ChartLine & ChartElement)[];
-    texts: TextElement[];
-    shapes: (ChartShape & ChartCircle)[];
-    connections: ChartConnection[];
-  };
-}
 
 export type JointType = "point" | "anchor_point";
 

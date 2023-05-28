@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "./app/store";
+import { clearSelection } from "./features/elements/elementsSlice";
 
 const CanvasBG = () => {
   const {
@@ -11,9 +12,13 @@ const CanvasBG = () => {
     canvasCoordinates: { left, top },
   } = useSelector((state: RootState) => state.general);
 
-  const { node_size } = useSelector((state: RootState) => state.elements);
+  const { node_size, selectedIds } = useSelector(
+    (state: RootState) => state.elements
+  );
 
   const [mouseCoordinates, setMouseCoordinates] = useState({ x: 0, y: 0 });
+
+  const dispatch = useDispatch();
 
   const canvasBg = useRef<HTMLCanvasElement>(null);
 

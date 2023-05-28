@@ -9,6 +9,7 @@ import {
   addNode,
   addPoint,
   addTextLine,
+  clearSelection,
 } from "./features/elements/elementsSlice";
 import { MenuContext } from "./context";
 
@@ -44,6 +45,8 @@ const Sidebar = () => {
       "elements-container"
     ) as HTMLDivElement;
     dispatch(setMode("set_node"));
+    setIsMenuOpen(false);
+    dispatch(clearSelection());
     const { top, left } = elementsContainer.getBoundingClientRect();
     const handleClick = (e: MouseEvent) => {
       const x0 = e.clientX;
