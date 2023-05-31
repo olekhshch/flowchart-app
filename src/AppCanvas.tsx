@@ -41,7 +41,7 @@ const AppCanvas = () => {
         const newTop0 = top + dY;
         const newValue = (value0: number) => {
           if (value0 <= -window.innerWidth * 0.7) {
-            return -window.innerWidth * 0.7;
+            return (-window.innerWidth * 0.7) / scale;
           }
           if (value0 > 0) {
             return 0;
@@ -62,9 +62,6 @@ const AppCanvas = () => {
         window.addEventListener("mouseup", handleMouseUp);
       };
       window.addEventListener("mousemove", handleMouseMove);
-      window.addEventListener("mouseup", () => {
-        window.removeEventListener("mousemove", handleMouseMove);
-      });
     }
   };
 

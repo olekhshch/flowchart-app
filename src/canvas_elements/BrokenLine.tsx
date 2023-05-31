@@ -113,24 +113,27 @@ const BrokenLine = ({
 
   const handleMouseDownH = (e: React.MouseEvent) => {
     const y0 = e.clientY;
+
     const handleMouseMove = (ev: MouseEvent) => {
       const y = (ev.clientY - canvasCoordinates.top) / scale;
-      if (y0 !== ev.clientY) {
-        dispatch(setBrokenLineTurnCoord({ id, newCoord: y }));
+      dispatch(setBrokenLineTurnCoord({ id, newCoord: y }));
+      setIsResizeClick(!(y0 > ev.clientY - 5 && y0 < ev.clientY + 5));
+      if (selectedIds[`${elementType}s`].includes(id)) {
+        setIsResizeClick(true);
       }
-      const handleMouseUp = (event: MouseEvent) => {
-        if (y0 < event.clientY + 5 && y0 > event.clientY - 5) {
-          if (!event.shiftKey) {
-            dispatch(clearSelection());
-          }
-          dispatch(selectElement({ elementId: id, elementType }));
-        }
-        window.removeEventListener("mousemove", handleMouseMove);
-        window.removeEventListener("mouseup", handleMouseUp);
-      };
-      window.addEventListener("mouseup", handleMouseUp);
+      ev.stopPropagation();
     };
     window.addEventListener("mousemove", handleMouseMove);
+    const handleMouseUp = (event: MouseEvent) => {
+      if (event.clientX === y0) {
+        setIsResizeClick(false);
+      }
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+      event.stopPropagation();
+    };
+    window.addEventListener("mouseup", handleMouseUp);
+
     e.stopPropagation();
   };
 

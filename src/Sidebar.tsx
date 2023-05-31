@@ -9,6 +9,7 @@ import {
   addNode,
   addPoint,
   addTextLine,
+  addTriangle,
   clearSelection,
 } from "./features/elements/elementsSlice";
 import { MenuContext } from "./context";
@@ -169,6 +170,27 @@ const Sidebar = () => {
     elementsContainer.addEventListener("click", handleClick);
   };
 
+  const createTriangleMode = () => {
+    dispatch(setMode("set_triangle"));
+    setIsMenuOpen(true);
+    const elementsContainer = document.getElementById(
+      "elements-container"
+    ) as HTMLDivElement;
+    const { top, left } = elementsContainer.getBoundingClientRect();
+    const handleClick = (e: MouseEvent) => {
+      const pointId = lastId + 1;
+      const x0 = e.clientX;
+      const y0 = e.clientY;
+      const x = (x0 - left) / scale;
+      const y = (y0 - top) / scale;
+      dispatch(addPoint({ x, y }));
+      dispatch(addTriangle(pointId.toString()));
+      dispatch(setMode("edit"));
+      elementsContainer.removeEventListener("click", handleClick);
+    };
+    elementsContainer.addEventListener("click", handleClick);
+  };
+
   return (
     <StyledSB>
       <div className="conteiner show-animate">
@@ -179,6 +201,7 @@ const Sidebar = () => {
             <li onClick={addNodeMode}>Node</li>
             <li onClick={connectPointsMode}>Connection</li>
             <li onClick={createCircleMode}>Circle</li>
+            <li onClick={createTriangleMode}>Triangle</li>
             <li onClick={addLineMode}>Line</li>
             <li onClick={addPointMode}>Point</li>
             <li onClick={addTextLineMode}>Text line</li>

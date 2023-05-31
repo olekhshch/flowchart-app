@@ -4,6 +4,7 @@ export interface ElementsState {
   draft: [string, JointType, PointCoordinates, APPositions | null][];
   connection_type: ConnectionType;
   connection_dir: BrokenLineDirection;
+  triangle_dir: APPositions;
   selectedIds: selectedIdsType;
   elements: ElementsStore & ElementsStoreKeys;
 }
@@ -14,7 +15,7 @@ interface ElementsStore {
   anchor_points: AnchorPoint[];
   lines: (ChartLine & ChartElement)[];
   texts: TextElement[];
-  shapes: (ChartShape & ChartCircle)[];
+  shapes: (ChartCircle | ChartTriangle)[];
   connections: ChartConnection[];
 }
 
@@ -95,16 +96,28 @@ export interface TextElement {
   value: string;
 }
 
+export type ShapeType = "circle" | "triangle" | "frame";
+
 export interface ChartShape {
-  shape_name: "circle" | "rect" | "frame";
+  shape_name: ShapeType;
   id: string;
+  strokeColour: string;
+  type: "shape";
 }
 
-export interface ChartCircle {
+export interface ChartCircle extends ChartShape {
   shape_name: "circle";
-  r: number;
-  strokeColour: string;
-  centerPointId: string;
+  type: "shape";
+  r: number; //radius
+  originPointId: string;
+}
+
+export interface ChartTriangle extends ChartShape {
+  shape_name: "triangle";
+  r: number; //side
+  originPointId: string;
+  isMirrored: boolean;
+  direction: APPositions;
 }
 
 export type BrokenLineDirection = "H" | "V" | null;

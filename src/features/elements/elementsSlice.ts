@@ -8,13 +8,13 @@ import {
   ChartElement,
   ChartNode,
   ChartPoint,
-  ChartShape,
   PointCoordinates,
   ConnectionType,
   BrokenLineDirection,
   TypeOfElement,
   selectedIdsType,
   APPositions,
+  ChartTriangle,
 } from "./elementsTypes";
 
 const emptySelection: selectedIdsType = {
@@ -33,6 +33,7 @@ const initialState: ElementsState = {
   connection_type: "straight",
   connection_dir: "V",
   node_size: { w: 140, h: 50 },
+  triangle_dir: "top",
   selectedIds: { ...emptySelection },
   elements: {
     nodes: [],
@@ -171,7 +172,7 @@ const elementsSlice = createSlice({
       };
       state.elements.texts = [...state.elements.texts, newTextLine];
     },
-    setTextLineValue: (
+    setTextElementValue: (
       state,
       action: PayloadAction<{ textId: string; newValue: string }>
     ) => {
@@ -189,15 +190,18 @@ const elementsSlice = createSlice({
         textId: string;
         newTop: number;
         newLeft: number;
+        textType: TypeOfElement;
       }>
     ) => {
-      const { textId, newLeft, newTop } = action.payload;
-      state.elements.texts = state.elements.texts.map((text) => {
-        if (text.id === textId) {
-          return { ...text, coordinates: { left: newLeft, top: newTop } };
+      const { textId, newLeft, newTop, textType } = action.payload;
+      state.elements[`${textType}s`] = state.elements[`${textType}s`].map(
+        (text) => {
+          if (text.id === textId) {
+            return { ...text, coordinates: { left: newLeft, top: newTop } };
+          }
+          return text;
         }
-        return text;
-      });
+      );
     },
     //connections
     setConnectionType: (state, action: PayloadAction<ConnectionType>) => {
@@ -253,14 +257,32 @@ const elementsSlice = createSlice({
     //shapes
     addCircle: (state, { payload }: PayloadAction<string>) => {
       state.lastId += 1;
-      const newCircle: ChartShape & ChartCircle = {
+      const newCircle: ChartCircle = {
         id: state.lastId.toString(),
         r: 20,
         shape_name: "circle",
         strokeColour: "main",
-        centerPointId: payload,
+        originPointId: payload,
+        type: "shape",
       };
       state.elements.shapes = [...state.elements.shapes, newCircle];
+    },
+    addTriangle: (state, { payload }: PayloadAction<string>) => {
+      state.lastId += 1;
+      const newTriangle: ChartTriangle = {
+        id: state.lastId.toString(),
+        r: 40,
+        shape_name: "triangle",
+        strokeColour: "main",
+        originPointId: payload,
+        type: "shape",
+        isMirrored: false,
+        direction: state.triangle_dir,
+      };
+      state.elements.shapes = [...state.elements.shapes, newTriangle];
+    },
+    setGlobalTriangleDir: (state, { payload }: PayloadAction<APPositions>) => {
+      state.triangle_dir = payload;
     },
     addToDraft: (state, { payload }) => {
       console.log(payload);
@@ -269,6 +291,8 @@ const elementsSlice = createSlice({
     clearDraft: (state) => {
       state.draft = [];
     },
+
+    //selection
     clearSelection: (state) => {
       state.selectedIds = { ...emptySelection };
     },
@@ -279,7 +303,6 @@ const elementsSlice = createSlice({
       }: PayloadAction<{ elementId: string; elementType: TypeOfElement }>
     ) => {
       const { elementId, elementType } = payload;
-      console.log("select");
       if (
         state.selectedIds[`${elementType}s`] &&
         !state.selectedIds[`${elementType}s`].includes(elementId)
@@ -305,14 +328,27 @@ const elementsSlice = createSlice({
       state.selectedIds = { ...emptySelection };
       state.selectedIds[payload] = savedSelection;
     },
-    // countSelected: (state) => {
-    //   const entries = Object.entries(state.selectedIds);
-    //   const countObj = entries.reduce((acc, [key, array]) => {
-    //     const num = array.length;
-    //     return {...acc, [key]: num, overalNumber: acc.overalNumber += num}
-    //   }, {overalNumber: 0});
-    //   return countObj;
-    // }
+    deleteSelected: (state) => {
+      const selectedEntries = Object.entries(state.selectedIds);
+      selectedEntries.forEach(([key, arrayOfIds]) => {
+        const keyOfArray = key as `${TypeOfElement}s`;
+        if (keyOfArray === "lines") {
+          let pointsIdsToDelete: string[] = [];
+          state.elements[keyOfArray] = state.elements[keyOfArray].filter(
+            (line) => {
+              if (arrayOfIds.includes(line.id)) {
+                pointsIdsToDelete.push(line.beginningPointId);
+                pointsIdsToDelete.push(line.endPointId);
+              }
+              return !arrayOfIds.includes(line.id);
+            }
+          );
+          state.elements.points = state.elements.points.filter(
+            (point) => !pointsIdsToDelete.includes(point.id)
+          );
+        }
+      });
+    },
   },
 });
 
@@ -326,7 +362,7 @@ export const {
   setPointCoordinates,
   addLine,
   addTextLine,
-  setTextLineValue,
+  setTextElementValue,
   setTextCoordinates,
   setConnectionType,
   setConnectionDirection,
@@ -335,8 +371,11 @@ export const {
   addToDraft,
   clearDraft,
   addCircle,
+  addTriangle,
+  setGlobalTriangleDir,
   clearSelection,
   selectElement,
   deselectElement,
   leaveSelected,
+  deleteSelected,
 } = elementsSlice.actions;

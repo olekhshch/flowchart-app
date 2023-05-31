@@ -10,6 +10,7 @@ type Mode =
   | "set_point"
   | "set_line"
   | "set_circle"
+  | "set_triangle"
   | "set_textline"
   | "connect_points";
 

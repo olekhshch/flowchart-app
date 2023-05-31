@@ -1,8 +1,11 @@
-import React, { useContext, useRef } from "react";
+import React, { useContext } from "react";
 import {
   addToDraft,
   clearDraft,
+  clearSelection,
   connectTwoPoints,
+  deselectElement,
+  selectElement,
   setPointCoordinates,
 } from "../features/elements/elementsSlice";
 import {
@@ -31,7 +34,17 @@ const ChartPointEl = ({ point, scale }: CPProps) => {
   const dispatch = useDispatch();
 
   const { mode } = useSelector((state: RootState) => state.general);
-  const { draft } = useSelector((state: RootState) => state.elements);
+  const { draft, selectedIds } = useSelector(
+    (state: RootState) => state.elements
+  );
+
+  const [isSelected, setIsSelected] = React.useState(
+    selectedIds.points.includes(point.id)
+  );
+
+  React.useEffect(() => {
+    setIsSelected(selectedIds.points.includes(point.id));
+  }, [selectedIds, setIsSelected, point]);
 
   const {
     coordinates: { x, y },
@@ -60,13 +73,15 @@ const ChartPointEl = ({ point, scale }: CPProps) => {
       );
     };
     window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mouseup", () => {
+    const handleMouseUp = () => {
       window.removeEventListener("mousemove", handleMouseMove);
-    });
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+    window.addEventListener("mouseup", handleMouseUp);
     ev.stopPropagation();
   };
 
-  const handleClick = () => {
+  const handleClick = (e: React.MouseEvent) => {
     if (mode === "connect_points") {
       dispatch(addToDraft([point.id, point.type, point.coordinates, null]));
       if (draft.length === 1) {
@@ -74,6 +89,24 @@ const ChartPointEl = ({ point, scale }: CPProps) => {
         dispatch(connectTwoPoints());
         dispatch(clearDraft());
         setIsMenuOpen(false);
+      }
+    } else {
+      if (!e.shiftKey) {
+        dispatch(clearSelection());
+      }
+
+      if (
+        !e.ctrlKey ||
+        (!selectedIds[`${point.type}s`].includes(point.id) && e.ctrlKey)
+      ) {
+        dispatch(
+          selectElement({ elementId: point.id, elementType: point.type })
+        );
+        setIsMenuOpen(true);
+      } else if (e.ctrlKey) {
+        dispatch(
+          deselectElement({ elementId: point.id, elementType: point.type })
+        );
       }
     }
   };
@@ -86,6 +119,7 @@ const ChartPointEl = ({ point, scale }: CPProps) => {
       onClick={handleClick}
       data-point-type={point.type}
       data-id={point.id}
+      style={{ backgroundColor: isSelected ? "orange" : "white" }}
     />
   );
 };

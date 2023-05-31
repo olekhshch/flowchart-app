@@ -4,13 +4,13 @@ import { TypeOfElement } from "./features/elements/elementsTypes";
 export interface MyContext {
   isMenuOpen: boolean;
   setIsMenuOpen: (a: boolean) => void;
-  selectedOnly: TypeOfElement | null;
-  setSelectedOnly: (a: TypeOfElement | null) => void;
+  selectedOnly: `${TypeOfElement}s` | null;
+  setSelectedOnly: (a: `${TypeOfElement}s` | null) => void;
 }
 const contextObj: MyContext = {
   isMenuOpen: false,
   setIsMenuOpen: (newValue) => {},
-  selectedOnly: "node",
+  selectedOnly: null,
   setSelectedOnly: (newType) => {},
 };
 

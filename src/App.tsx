@@ -12,14 +12,16 @@ import { RootState } from "./app/store";
 
 const App = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [selectedOnly, setSelectedOnly] = useState<TypeOfElement | null>(null);
+  const [selectedOnly, setSelectedOnly] = useState<`${TypeOfElement}s` | null>(
+    null
+  );
   const contextObj: MyContext = {
     isMenuOpen,
     setIsMenuOpen,
     selectedOnly,
     setSelectedOnly,
   };
-  const { selectedIds } = useSelector((state: RootState) => state.elements);
+
   return (
     <div>
       <MenuContext.Provider value={contextObj}>

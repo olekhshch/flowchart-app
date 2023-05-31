@@ -6,6 +6,7 @@ import {
   NameOfElementsArrayKey,
   TypeOfElement,
 } from "../features/elements/elementsTypes";
+import LinesMenu from "./LinesMenu";
 
 interface MenuProps {
   selectedCount: MyCountType;
@@ -33,7 +34,12 @@ const GlobalSelectionMenu = ({ selectedCount }: MenuProps) => {
 
   const handleClick = (key: `${TypeOfElement}s`) => {
     dispatch(leaveSelected(key));
+    setSelectedOnly(key);
   };
+
+  if (selectedOnly === "lines") {
+    return <LinesMenu />;
+  }
 
   return (
     <div>

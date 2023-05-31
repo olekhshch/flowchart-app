@@ -4,6 +4,7 @@ import { RootState } from "./app/store";
 import ConnectionMenu from "./menu/ConnectionMenu";
 import GlobalSelectionMenu, { MyCountType } from "./menu/GlobalSelectionMenu";
 import styled from "styled-components";
+import TriangleMenu from "./menu/SetTriangleMenu";
 
 const Menu = () => {
   const { mode } = useSelector((state: RootState) => state.general);
@@ -13,6 +14,14 @@ const Menu = () => {
     return (
       <MenuStyled>
         <ConnectionMenu />
+      </MenuStyled>
+    );
+  }
+
+  if (mode === "set_triangle") {
+    return (
+      <MenuStyled>
+        <TriangleMenu toCreate={true} />
       </MenuStyled>
     );
   }
@@ -62,6 +71,29 @@ const MenuStyled = styled.section`
 
   .list {
     cursor: pointer;
+  }
+
+  .list-btns-cont {
+    display: flex;
+    flex-wrap: wrap;
+    max-width: 210px;
+  }
+
+  .list-buttons {
+    padding: 4px 0.5em;
+    margin: 2px;
+    min-width: 80px;
+    cursor: pointer;
+    border-radius: 6px;
+    border: 2px solid transparent;
+  }
+
+  .list-buttons-selected {
+    background-color: var(--main);
+  }
+
+  .list-buttons:hover {
+    border-color: var(--main);
   }
 
   .list:hover,

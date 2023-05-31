@@ -1,12 +1,16 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useContext } from "react";
 import styled from "styled-components";
-import { TextElement } from "../features/elements/elementsTypes";
+import { TextElement, TypeOfElement } from "../features/elements/elementsTypes";
 import {
+  clearSelection,
+  deselectElement,
+  selectElement,
   setTextCoordinates,
-  setTextLineValue,
+  setTextElementValue,
 } from "../features/elements/elementsSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../app/store";
+import { MenuContext } from "../context";
 
 interface TextLineProps {
   data: TextElement;
@@ -15,17 +19,20 @@ interface TextLineProps {
 const TextLine = ({ data }: TextLineProps) => {
   const dispatch = useDispatch();
   const { scale } = useSelector((state: RootState) => state.general);
+  const { selectedIds } = useSelector((state: RootState) => state.elements);
 
   const [editMode, setEditMode] = useState<boolean>(true);
   const [editModeWidth, setEditModeWidth] = useState(40);
   const divEl = useRef<HTMLDivElement>(null);
   const inputEl = useRef<HTMLInputElement>(null);
 
-  const { coordinates, value, id } = data;
+  const { coordinates, value, id, type } = data;
   const [currentValue, setCurrentValue] = useState(value);
 
+  const { setIsMenuOpen } = useContext(MenuContext);
+
   useEffect(() => {
-    dispatch(setTextLineValue({ newValue: currentValue, textId: id }));
+    dispatch(setTextElementValue({ newValue: currentValue, textId: id }));
   }, [currentValue, dispatch, id]);
 
   useEffect(() => {
@@ -46,15 +53,36 @@ const TextLine = ({ data }: TextLineProps) => {
       const y = e.clientY;
       const dX = x - x0;
       const dY = y - y0;
+      // if (Math.abs(dX) >= 5 && Math.abs(dY) >= 5) {
+      //   setToSelect(false);
+      // }
       const newLeft = coordinates.left + dX / scale;
       const newTop = coordinates.top + dY / scale;
-      dispatch(setTextCoordinates({ textId: id, newLeft, newTop }));
+      dispatch(
+        setTextCoordinates({ textId: id, newLeft, newTop, textType: "text" })
+      );
     };
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseup", () => {
       window.removeEventListener("mousemove", handleMouseMove);
     });
     ev.stopPropagation();
+  };
+
+  const handleClick = (e: React.MouseEvent) => {
+    const isSelected = selectedIds.texts.includes(id);
+
+    if (!e.shiftKey) {
+      dispatch(clearSelection());
+    }
+    if (!selectedIds.texts.includes(id) || isSelected) {
+      dispatch(selectElement({ elementId: id, elementType: "text" }));
+      setIsMenuOpen(true);
+    }
+
+    if (e.ctrlKey) {
+      dispatch(deselectElement({ elementId: id, elementType: "text" }));
+    }
   };
 
   if (!editMode) {
@@ -65,7 +93,13 @@ const TextLine = ({ data }: TextLineProps) => {
         left={coordinates.left}
         onDoubleClick={enterEditMode}
         onMouseDown={handleMouseDown}
+        onClick={handleClick}
         ref={divEl}
+        style={{
+          border: `1px solid ${
+            selectedIds.texts.includes(id) ? "orange" : "white"
+          }`,
+        }}
       >
         {currentValue}
       </ShortTextBlock>
