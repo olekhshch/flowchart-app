@@ -6,7 +6,7 @@ import {
   selectElement,
 } from "../features/elements/elementsSlice";
 import { useContext } from "react";
-import { MenuContext } from "../context";
+import { MenuContext } from "../menuContext";
 
 interface LineProps {
   begPoint: ChartPoint;

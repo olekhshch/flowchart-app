@@ -1,7 +1,7 @@
 import React from "react";
 import { useDispatch } from "react-redux";
 import { leaveSelected } from "../features/elements/elementsSlice";
-import { MenuContext } from "../context";
+import { MenuContext } from "../menuContext";
 import {
   NameOfElementsArrayKey,
   TypeOfElement,

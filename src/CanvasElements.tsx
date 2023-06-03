@@ -17,7 +17,7 @@ import BrokenLine from "./canvas_elements/BrokenLine";
 import ChartCircle from "./canvas_elements/ChartCircle";
 import { clearSelection } from "./features/elements/elementsSlice";
 import ChartTriangleEl from "./canvas_elements/ChartTriangle";
-import { MenuContext } from "./context";
+import { MenuContext } from "./menuContext";
 
 const CanvasElements = (props: { scale: number }) => {
   const { mode } = useSelector((state: RootState) => state.general);

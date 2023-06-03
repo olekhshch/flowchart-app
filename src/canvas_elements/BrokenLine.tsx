@@ -12,7 +12,7 @@ import {
   selectElement,
   setBrokenLineTurnCoord,
 } from "../features/elements/elementsSlice";
-import { MenuContext } from "../context";
+import { MenuContext } from "../menuContext";
 
 export type BrokenLineProps = {
   begPoint: ChartPoint;

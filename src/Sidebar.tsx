@@ -12,7 +12,7 @@ import {
   addTriangle,
   clearSelection,
 } from "./features/elements/elementsSlice";
-import { MenuContext } from "./context";
+import { MenuContext } from "./menuContext";
 
 type PointDraft = {
   id: string;

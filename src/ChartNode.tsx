@@ -10,7 +10,7 @@ import { ChartNode } from "./features/elements/elementsTypes";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "./app/store";
-import { MenuContext } from "./context";
+import { MenuContext } from "./menuContext";
 
 interface ChartNodeProps {
   node: ChartNode;

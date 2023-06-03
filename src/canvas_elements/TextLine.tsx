@@ -10,7 +10,7 @@ import {
 } from "../features/elements/elementsSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../app/store";
-import { MenuContext } from "../context";
+import { MenuContext } from "../menuContext";
 
 interface TextLineProps {
   data: TextElement;

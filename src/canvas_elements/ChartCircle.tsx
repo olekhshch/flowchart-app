@@ -5,7 +5,7 @@ import {
   clearSelection,
   selectElement,
 } from "../features/elements/elementsSlice";
-import { MenuContext } from "../context";
+import { MenuContext } from "../menuContext";
 import { TypeOfElement } from "../features/elements/elementsTypes";
 
 interface CircleProps {

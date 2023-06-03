@@ -4,18 +4,19 @@ import Minibar from "./Minibar";
 import Sidebar from "./Sidebar";
 import styled from "styled-components";
 import Viewport from "./Viewport";
-import { MenuContext, MyContext } from "./context";
+
 import Menu from "./Menu";
 import { TypeOfElement } from "./features/elements/elementsTypes";
 import { useSelector } from "react-redux";
 import { RootState } from "./app/store";
+import { MenuCntxType, MenuContext } from "./menuContext";
 
 const App = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [selectedOnly, setSelectedOnly] = useState<`${TypeOfElement}s` | null>(
     null
   );
-  const contextObj: MyContext = {
+  const contextObj: MenuCntxType = {
     isMenuOpen,
     setIsMenuOpen,
     selectedOnly,

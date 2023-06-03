@@ -16,7 +16,7 @@ import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../app/store";
 import { setMode } from "../features/general/generalSlice";
-import { MenuContext } from "../context";
+import { MenuContext } from "../menuContext";
 
 interface CPProps {
   point: ChartPoint;
