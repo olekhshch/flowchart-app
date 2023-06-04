@@ -6,7 +6,9 @@ import { setMode, toggleGrid } from "./features/general/generalSlice";
 
 const Minibar = () => {
   const dispatch = useDispatch();
-  const { scale, mode } = useSelector((state: RootState) => state.general);
+  const { scale, mode, minibarMessage } = useSelector(
+    (state: RootState) => state.general
+  );
   return (
     <StyledMinibar>
       <div className="btns-container">
@@ -31,6 +33,7 @@ const Minibar = () => {
           .
         </button>
       </div>
+      <span>{minibarMessage}</span>
       <div className="scale-info">Scale: {scale}</div>
     </StyledMinibar>
   );
@@ -38,6 +41,7 @@ const Minibar = () => {
 
 const StyledMinibar = styled.section`
   position: absolute;
+  display: flex;
   z-index: 100;
   left: 0;
   right: 0;
@@ -78,6 +82,11 @@ const StyledMinibar = styled.section`
     font-size: 14px;
     color: var(--main);
     user-select: none;
+  }
+
+  span {
+    margin: 0 6px;
+    font-weight: lighter;
   }
 `;
 

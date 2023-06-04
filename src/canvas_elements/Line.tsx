@@ -17,7 +17,8 @@ interface LineProps {
 
 const Line = ({ begPoint, endPoint, elementId, elementType }: LineProps) => {
   const dispatch = useDispatch();
-  const { setIsMenuOpen } = useContext(MenuContext);
+  const { setIsMenuOpen, selectedOnly, setSelectedOnly } =
+    useContext(MenuContext);
 
   const { scale } = useSelector((state: RootState) => state.general);
   const { selectedIds } = useSelector((state: RootState) => state.elements);
@@ -35,6 +36,9 @@ const Line = ({ begPoint, endPoint, elementId, elementType }: LineProps) => {
     dispatch(selectElement({ elementId, elementType }));
     dispatch(selectElement({ elementId, elementType }));
     setIsMenuOpen(true);
+    if (selectedOnly !== `${elementType}s`) {
+      setSelectedOnly(null);
+    }
     e.stopPropagation();
   };
 

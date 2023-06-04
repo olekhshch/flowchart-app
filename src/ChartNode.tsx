@@ -11,6 +11,8 @@ import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "./app/store";
 import { MenuContext } from "./menuContext";
+import { setMinibarMsg } from "./features/general/generalSlice";
+import { minibarMsg } from "./features/general/minibarMsgs";
 
 interface ChartNodeProps {
   node: ChartNode;
@@ -28,6 +30,7 @@ const ChartNodeEl = ({ node, scale }: ChartNodeProps) => {
   const dispatch = useDispatch();
 
   const spanEl = useRef<HTMLSpanElement>(null);
+  const inputEl = useRef<HTMLInputElement>(null);
   const {
     node_size: { w, h },
     selectedIds,
@@ -37,7 +40,8 @@ const ChartNodeEl = ({ node, scale }: ChartNodeProps) => {
   const [inputSize, setInputSize] = useState({ width: 100, height: 22 });
   const [nodeTitle, setNodeTitle] = useState(node.title);
 
-  const { setIsMenuOpen } = React.useContext(MenuContext);
+  const { setIsMenuOpen, selectedOnly, setSelectedOnly } =
+    React.useContext(MenuContext);
 
   const handleClick = (e: React.MouseEvent) => {
     if (!e.shiftKey && e.button === 0) {
@@ -50,6 +54,9 @@ const ChartNodeEl = ({ node, scale }: ChartNodeProps) => {
     }
 
     setIsMenuOpen(true);
+    if (selectedOnly !== `${node.type}s`) {
+      setSelectedOnly(null);
+    }
   };
 
   const handleMouseDown = (ev: React.MouseEvent) => {
@@ -81,6 +88,8 @@ const ChartNodeEl = ({ node, scale }: ChartNodeProps) => {
     const { width, height } = spanEl.current!.getBoundingClientRect();
     setInputSize({ width, height });
     setEditMode(true);
+    setIsMenuOpen(false);
+    dispatch(clearSelection());
     ev.stopPropagation();
   };
 
@@ -108,9 +117,20 @@ const ChartNodeEl = ({ node, scale }: ChartNodeProps) => {
     }
   };
 
+  const changeMinibarMsg = (e: React.MouseEvent) => {
+    if (editMode) {
+      dispatch(setMinibarMsg(minibarMsg.Node_edit_hover));
+    } else {
+      dispatch(setMinibarMsg(minibarMsg.Node_hover));
+    }
+
+    e.stopPropagation();
+  };
+
   if (editMode) {
     return (
       <StyledNode
+        onMouseOver={changeMinibarMsg}
         top={node.coordinates.top}
         left={node.coordinates.left}
         scale={scale}
@@ -120,7 +140,7 @@ const ChartNodeEl = ({ node, scale }: ChartNodeProps) => {
           onSubmit={handleSubmit}
           style={{ width: w + "px", height: h + "px" }}
         >
-          <textarea
+          <input
             value={node.title}
             style={{
               width: `${inputSize.width}px`,
@@ -128,6 +148,7 @@ const ChartNodeEl = ({ node, scale }: ChartNodeProps) => {
             placeholder="Can't be empty"
             onClick={(e) => e.stopPropagation()}
             onChange={handleInputChange}
+            ref={inputEl}
           />
           <div className="form-buttons-right">
             <button className="form_btn">N</button>
@@ -151,6 +172,7 @@ const ChartNodeEl = ({ node, scale }: ChartNodeProps) => {
       isSelected={selectedIds.nodes.includes(node.id)}
       onClick={handleClick}
       onMouseDown={handleMouseDown}
+      onMouseOver={changeMinibarMsg}
     >
       <div>
         <div className="node" style={{ width: w + "px", height: h + "px" }}>

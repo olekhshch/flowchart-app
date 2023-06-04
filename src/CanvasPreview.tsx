@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "./app/store";
-import { addPoint } from "./features/elements/elementsSlice";
+import { setMouseCoordinates } from "./features/elements/elementsSlice";
 import { setMode } from "./features/general/generalSlice";
 
 const CanvasPreview = () => {
@@ -12,48 +12,120 @@ const CanvasPreview = () => {
     canvasCoordinates: { left, top },
   } = useSelector((state: RootState) => state.general);
 
-  // const getScale = () => scale;
-  // const getMode = () => mode;
+  const { mouseCoordinates, node_size } = useSelector(
+    (state: RootState) => state.elements
+  );
 
-  // const dispatch = useDispatch();
+  const dispatch = useDispatch();
 
-  // const canvasPreview = useRef<HTMLCanvasElement>(null)!;
+  const canvasPreview = useRef<HTMLCanvasElement>(null)!;
 
-  // const clearPreview = () => {
-  //   const c = canvasPreview.current!.getContext("2d")!;
-  //   c.clearRect(0, 0, canvasSize * scale, canvasSize * scale);
-  // };
+  const clearPreview = () => {
+    const c = canvasPreview.current!.getContext("2d")!;
+    c.clearRect(0, 0, canvasSize * scale, canvasSize * scale);
+  };
 
-  // const getCanvasCoordinatesOfMouse = (e: MouseEvent) => {
-  //   const x0 = e.clientX;
-  //   const y0 = e.clientY;
-  //   const x = (x0 - left) / scale;
-  //   const y = (y0 - top) / scale;
+  const setCanvasCoordinatesAndPreview = (e: MouseEvent) => {
+    const x0 = e.clientX;
+    const y0 = e.clientY;
+    const x = (x0 - left) / scale;
+    const y = (y0 - top) / scale;
 
-  //   setMouseCoordinates({ x, y });
-  //   // window.removeEventListener("mousemove", getCanvasCoordinatesOfMouse);
-  // };
+    dispatch(setMouseCoordinates({ x, y }));
+
+    if (mode === "set_point") {
+      previewPoint();
+    } else if (mode === "set_node") {
+      previewNode();
+    } else if (mode === "set_textline") {
+      previewTextLine();
+    } else if (mode === "set_circle") {
+      previewCircle();
+    }
+  };
+
+  const previewPoint = () => {
+    const c = canvasPreview.current!.getContext("2d")!;
+    clearPreview();
+    c.beginPath();
+    c.arc(
+      scale * mouseCoordinates.x,
+      scale * mouseCoordinates.y,
+      2 * scale,
+      0,
+      2 * Math.PI
+    );
+    c.fillStyle = "orange";
+    c.fill();
+  };
+
+  const previewNode = () => {
+    const c = canvasPreview.current!.getContext("2d")!;
+    clearPreview();
+    c.beginPath();
+    c.moveTo(
+      scale * (mouseCoordinates.x - node_size.w / 2),
+      scale * (mouseCoordinates.y - node_size.h / 2)
+    );
+    c.lineTo(
+      scale * (mouseCoordinates.x + node_size.w / 2),
+      scale * (mouseCoordinates.y - node_size.h / 2)
+    );
+    c.lineTo(
+      scale * (mouseCoordinates.x + node_size.w / 2),
+      scale * (mouseCoordinates.y + node_size.h / 2)
+    );
+    c.lineTo(
+      scale * (mouseCoordinates.x - node_size.w / 2),
+      scale * (mouseCoordinates.y + node_size.h / 2)
+    );
+    c.closePath();
+    c.strokeStyle = "orange";
+    c.stroke();
+  };
+
+  const previewTextLine = () => {
+    const c = canvasPreview.current!.getContext("2d")!;
+    clearPreview();
+    c.beginPath();
+    c.moveTo(scale * mouseCoordinates.x, scale * mouseCoordinates.y);
+    c.lineTo(scale * (mouseCoordinates.x + 40), scale * mouseCoordinates.y);
+    c.lineTo(
+      scale * (mouseCoordinates.x + 40),
+      scale * (mouseCoordinates.y + 20)
+    );
+    c.lineTo(scale * mouseCoordinates.x, scale * (mouseCoordinates.y + 20));
+    c.closePath();
+    c.strokeStyle = "orange";
+    c.stroke();
+  };
+
+  const previewCircle = () => {
+    const c = canvasPreview.current!.getContext("2d")!;
+    clearPreview();
+    c.beginPath();
+    c.arc(
+      mouseCoordinates.x * scale,
+      mouseCoordinates.y * scale,
+      20 * scale,
+      0,
+      Math.PI * 2
+    );
+    c.strokeStyle = "orange";
+    c.stroke();
+  };
+
+  useEffect(() => {
+    window.addEventListener("mousemove", setCanvasCoordinatesAndPreview);
+    mode === "edit" && clearPreview();
+    return () => {
+      window.removeEventListener("mousemove", setCanvasCoordinatesAndPreview);
+    };
+  }, [mouseCoordinates, mode]);
 
   // const elementsContainer = document.getElementById(
   //   "elements-container"
   // ) as HTMLDivElement;
-
-  // const previewPoint = (e: MouseEvent) => {
-  //   getCanvasCoordinatesOfMouse(e);
-  //   const c = canvasPreview.current!.getContext("2d")!;
-  //   clearPreview();
-  //   c.beginPath();
-  //   c.arc(
-  //     scale * getMouseCoordinates().x,
-  //     scale * getMouseCoordinates().y,
-  //     2 * scale,
-  //     0,
-  //     2 * Math.PI
-  //   );
-  //   c.fillStyle = "orange";
-  //   c.fill();
-  //   // window.removeEventListener("mousemove", previewPoint);
-  // };
 
   // // useEffect(() => {
   // //   console.log("mouse coord tracking");
@@ -94,7 +166,7 @@ const CanvasPreview = () => {
 
   return (
     <canvas
-      // ref={canvasPreview}
+      ref={canvasPreview}
       id="canvas-preview"
       width={canvasSize * scale}
       height={canvasSize * scale}

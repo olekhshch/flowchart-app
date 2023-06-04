@@ -10,6 +10,7 @@ import {
 } from "./features/general/generalSlice";
 import CanvasBG from "./CanvasBG";
 import { clearSelection } from "./features/elements/elementsSlice";
+import CanvasPreview from "./CanvasPreview";
 
 interface Canvas {
   canvasSize: number;
@@ -89,6 +90,7 @@ const AppCanvas = () => {
       onWheel={zoomCanvas}
     >
       <CanvasBG />
+      <CanvasPreview />
       <CanvasElements scale={scale} />
     </CanvasConteiner>
   );

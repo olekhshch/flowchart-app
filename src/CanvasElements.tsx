@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useContext } from "react";
+import { useContext, useState, useEffect } from "react";
 import styled from "styled-components";
 import { RootState } from "./app/store";
 import ChartNodeEl from "./ChartNode";
@@ -15,9 +15,18 @@ import {
 } from "./features/elements/elementsTypes";
 import BrokenLine from "./canvas_elements/BrokenLine";
 import ChartCircle from "./canvas_elements/ChartCircle";
-import { clearSelection } from "./features/elements/elementsSlice";
+import {
+  addCircleByClick,
+  addNodeByClick,
+  addPointByClick,
+  addTextLineByClick,
+  addTriangleByClick,
+  clearSelection,
+} from "./features/elements/elementsSlice";
 import ChartTriangleEl from "./canvas_elements/ChartTriangle";
 import { MenuContext } from "./menuContext";
+import { Mode, setMinibarMsg, setMode } from "./features/general/generalSlice";
+import { minibarMsg } from "./features/general/minibarMsgs";
 
 const CanvasElements = (props: { scale: number }) => {
   const { mode } = useSelector((state: RootState) => state.general);
@@ -37,15 +46,40 @@ const CanvasElements = (props: { scale: number }) => {
 
   const { setSelectedOnly } = useContext(MenuContext);
 
+  const [currentMode, setCurrentMode] = useState<Mode>(mode);
+
+  useEffect(() => {
+    setCurrentMode(mode);
+  }, [mode]);
+
   const dispatch = useDispatch();
 
-  const handleDeselectClick = (e: React.MouseEvent) => {
+  const handleClick = (e: React.MouseEvent, mode: Mode) => {
     dispatch(clearSelection());
     setSelectedOnly(null);
+    if (mode === "set_point") {
+      dispatch(addPointByClick());
+    } else if (mode === "set_node") {
+      dispatch(addNodeByClick());
+    } else if (mode === "set_textline") {
+      dispatch(addTextLineByClick());
+    } else if (mode === "set_circle") {
+      dispatch(addCircleByClick());
+    } else if (mode === "set_triangle") {
+      dispatch(addTriangleByClick());
+    }
+
+    if (mode !== "view") {
+      dispatch(setMode("edit"));
+    }
   };
 
   return (
-    <ElementsContainer id="elements-container" mode={mode}>
+    <ElementsContainer
+      id="elements-container"
+      mode={mode}
+      onMouseOver={() => dispatch(setMinibarMsg(minibarMsg.Empty))}
+    >
       {nodes.map((element) => {
         return (
           <ChartNodeEl key={element.id} node={element} scale={props.scale} />
@@ -76,17 +110,23 @@ const CanvasElements = (props: { scale: number }) => {
         }
         return <></>;
       })}
-      <svg width="100%" height="100%" onClick={handleDeselectClick}>
+      <svg
+        width="100%"
+        height="100%"
+        onClick={(e) => handleClick(e, currentMode)}
+      >
         {connections.map((connection) => {
           let begPoint: ChartPoint = {
             id: "0",
             coordinates: { x: 10, y: 10 },
             type: "point",
+            linkedTo: [],
           };
           let endPoint: ChartPoint = {
             id: "0",
             coordinates: { x: 200, y: 200 },
             type: "point",
+            linkedTo: [],
           };
           const {
             beginningPointId,
@@ -129,6 +169,7 @@ const CanvasElements = (props: { scale: number }) => {
                   id: beginningPointId,
                   coordinates: { x, y },
                   type: "anchor_point",
+                  linkedTo: [],
                 };
               }
             } else {
@@ -164,6 +205,7 @@ const CanvasElements = (props: { scale: number }) => {
                   id: endPointId,
                   coordinates: { x, y },
                   type: "anchor_point",
+                  linkedTo: [],
                 };
               }
             } else {
@@ -212,6 +254,7 @@ const CanvasElements = (props: { scale: number }) => {
                   id: beginningPointId,
                   coordinates: { x, y },
                   type: "anchor_point",
+                  linkedTo: [],
                 };
               }
             } else {
@@ -247,6 +290,7 @@ const CanvasElements = (props: { scale: number }) => {
                   id: endPointId,
                   coordinates: { x, y },
                   type: "anchor_point",
+                  linkedTo: [],
                 };
               }
             } else {

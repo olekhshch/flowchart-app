@@ -1,4 +1,5 @@
 import { GeneralSettingsState } from "./generalSlice";
+import { minibarMsg } from "./minibarMsgs";
 
 export const initialState: GeneralSettingsState = {
   isSBCollapsed: false,
@@ -12,4 +13,5 @@ export const initialState: GeneralSettingsState = {
   },
   mode: "edit",
   isCanvasMoving: true,
+  minibarMessage: minibarMsg.Empty,
 };

@@ -58,76 +58,76 @@ const CanvasBG = () => {
     window.removeEventListener("mousemove", getCanvasCoordinatesOfMouse);
   };
 
-  const previewNode = (e: MouseEvent) => {
-    getCanvasCoordinatesOfMouse(e);
-    const c = canvasBg.current!.getContext("2d")!;
-    clearBG(canvasBg.current!);
-    if (grid.isOn) {
-      drawGrid(canvasBg.current!);
-    }
-    c.beginPath();
-    c.moveTo(
-      scale * (mouseCoordinates.x - node_size.w / 2),
-      scale * (mouseCoordinates.y - node_size.h / 2)
-    );
-    c.lineTo(
-      scale * (mouseCoordinates.x + node_size.w / 2),
-      scale * (mouseCoordinates.y - node_size.h / 2)
-    );
-    c.lineTo(
-      scale * (mouseCoordinates.x + node_size.w / 2),
-      scale * (mouseCoordinates.y + node_size.h / 2)
-    );
-    c.lineTo(
-      scale * (mouseCoordinates.x - node_size.w / 2),
-      scale * (mouseCoordinates.y + node_size.h / 2)
-    );
-    c.closePath();
-    c.strokeStyle = "orange";
-    c.stroke();
-    window.removeEventListener("mousemove", previewNode);
-  };
+  // const previewNode = (e: MouseEvent) => {
+  //   getCanvasCoordinatesOfMouse(e);
+  //   const c = canvasBg.current!.getContext("2d")!;
+  //   clearBG(canvasBg.current!);
+  //   if (grid.isOn) {
+  //     drawGrid(canvasBg.current!);
+  //   }
+  //   c.beginPath();
+  //   c.moveTo(
+  //     scale * (mouseCoordinates.x - node_size.w / 2),
+  //     scale * (mouseCoordinates.y - node_size.h / 2)
+  //   );
+  //   c.lineTo(
+  //     scale * (mouseCoordinates.x + node_size.w / 2),
+  //     scale * (mouseCoordinates.y - node_size.h / 2)
+  //   );
+  //   c.lineTo(
+  //     scale * (mouseCoordinates.x + node_size.w / 2),
+  //     scale * (mouseCoordinates.y + node_size.h / 2)
+  //   );
+  //   c.lineTo(
+  //     scale * (mouseCoordinates.x - node_size.w / 2),
+  //     scale * (mouseCoordinates.y + node_size.h / 2)
+  //   );
+  //   c.closePath();
+  //   c.strokeStyle = "orange";
+  //   c.stroke();
+  //   window.removeEventListener("mousemove", previewNode);
+  // };
 
   const previewPoint = (e: MouseEvent) => {
-    getCanvasCoordinatesOfMouse(e);
-    const c = canvasBg.current!.getContext("2d")!;
-    clearBG(canvasBg.current!);
-    if (grid.isOn) {
-      drawGrid(canvasBg.current!);
-    }
-    c.beginPath();
-    c.arc(
-      scale * mouseCoordinates.x,
-      scale * mouseCoordinates.y,
-      2 * scale,
-      0,
-      2 * Math.PI
-    );
-    c.fillStyle = "orange";
-    c.fill();
-    window.removeEventListener("mousemove", previewPoint);
+    // getCanvasCoordinatesOfMouse(e);
+    // const c = canvasBg.current!.getContext("2d")!;
+    // clearBG(canvasBg.current!);
+    // if (grid.isOn) {
+    //   drawGrid(canvasBg.current!);
+    // }
+    // c.beginPath();
+    // c.arc(
+    //   scale * mouseCoordinates.x,
+    //   scale * mouseCoordinates.y,
+    //   2 * scale,
+    //   0,
+    //   2 * Math.PI
+    // );
+    // c.fillStyle = "orange";
+    // c.fill();
+    // window.removeEventListener("mousemove", previewPoint);
   };
 
-  const previewTextLine = (e: MouseEvent) => {
-    getCanvasCoordinatesOfMouse(e);
-    const c = canvasBg.current!.getContext("2d")!;
-    clearBG(canvasBg.current!);
-    c.beginPath();
-    if (grid.isOn) {
-      drawGrid(canvasBg.current!);
-    }
-    c.moveTo(scale * mouseCoordinates.x, scale * mouseCoordinates.y);
-    c.lineTo(scale * (mouseCoordinates.x + 40), scale * mouseCoordinates.y);
-    c.lineTo(
-      scale * (mouseCoordinates.x + 40),
-      scale * (mouseCoordinates.y + 20)
-    );
-    c.lineTo(scale * mouseCoordinates.x, scale * (mouseCoordinates.y + 20));
-    c.closePath();
-    c.strokeStyle = "orange";
-    c.stroke();
-    window.removeEventListener("mousemove", previewTextLine);
-  };
+  // const previewTextLine = (e: MouseEvent) => {
+  //   getCanvasCoordinatesOfMouse(e);
+  //   const c = canvasBg.current!.getContext("2d")!;
+  //   clearBG(canvasBg.current!);
+  //   c.beginPath();
+  //   if (grid.isOn) {
+  //     drawGrid(canvasBg.current!);
+  //   }
+  //   c.moveTo(scale * mouseCoordinates.x, scale * mouseCoordinates.y);
+  //   c.lineTo(scale * (mouseCoordinates.x + 40), scale * mouseCoordinates.y);
+  //   c.lineTo(
+  //     scale * (mouseCoordinates.x + 40),
+  //     scale * (mouseCoordinates.y + 20)
+  //   );
+  //   c.lineTo(scale * mouseCoordinates.x, scale * (mouseCoordinates.y + 20));
+  //   c.closePath();
+  //   c.strokeStyle = "orange";
+  //   c.stroke();
+  //   window.removeEventListener("mousemove", previewTextLine);
+  // };
 
   useEffect(() => {
     const bg = canvasBg.current! as HTMLCanvasElement;
@@ -139,17 +139,17 @@ const CanvasBG = () => {
     }
   }, [grid, scale, mode]);
 
-  useEffect(() => {
-    if (mode === "set_point") {
-      window.addEventListener("mousemove", previewPoint);
-    } else if (mode === "set_node") {
-      window.addEventListener("mousemove", previewNode);
-    } else if (mode === "set_textline") {
-      window.addEventListener("mousemove", previewTextLine);
-    } else {
-      window.addEventListener("mousemove", getCanvasCoordinatesOfMouse);
-    }
-  });
+  // useEffect(() => {
+  //   if (mode === "set_point") {
+  //     window.addEventListener("mousemove", previewPoint);
+  //   } else if (mode === "set_node") {
+  //     window.addEventListener("mousemove", previewNode);
+  //   } else if (mode === "set_textline") {
+  //     window.addEventListener("mousemove", previewTextLine);
+  //   } else {
+  //     window.addEventListener("mousemove", getCanvasCoordinatesOfMouse);
+  //   }
+  // });
 
   return (
     <canvas

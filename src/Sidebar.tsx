@@ -2,17 +2,24 @@ import React, { useContext } from "react";
 import styled from "styled-components";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "./app/store";
-import { openSB, closeSB, setMode } from "./features/general/generalSlice";
+import {
+  openSB,
+  closeSB,
+  setMode,
+  setMinibarMsg,
+} from "./features/general/generalSlice";
 import {
   addCircle,
   addLine,
+  addPointByClick,
   addNode,
-  addPoint,
+  addPointByCoordinates,
   addTextLine,
   addTriangle,
   clearSelection,
 } from "./features/elements/elementsSlice";
 import { MenuContext } from "./menuContext";
+import { minibarMsg } from "./features/general/minibarMsgs";
 
 type PointDraft = {
   id: string;
@@ -42,42 +49,34 @@ const Sidebar = () => {
   }
 
   const addNodeMode = () => {
-    const elementsContainer = document.getElementById(
-      "elements-container"
-    ) as HTMLDivElement;
+    // const elementsContainer = document.getElementById(
+    //   "elements-container"
+    // ) as HTMLDivElement;
     dispatch(setMode("set_node"));
     setIsMenuOpen(false);
-    dispatch(clearSelection());
-    const { top, left } = elementsContainer.getBoundingClientRect();
-    const handleClick = (e: MouseEvent) => {
-      const x0 = e.clientX;
-      const y0 = e.clientY;
-      const x = (x0 - left) / scale - 0.5 * node_size.w;
-      const y = (y0 - top) / scale - 0.5 * node_size.h;
-      dispatch(addNode({ left: x, top: y }));
-      dispatch(setMode("edit"));
+    // dispatch(clearSelection());
+    // const { top, left } = elementsContainer.getBoundingClientRect();
+    // const handleClick = (e: MouseEvent) => {
+    //   const x0 = e.clientX;
+    //   const y0 = e.clientY;
+    //   const x = (x0 - left) / scale - 0.5 * node_size.w;
+    //   const y = (y0 - top) / scale - 0.5 * node_size.h;
+    //   dispatch(addNode({ left: x, top: y }));
+    //   dispatch(setMode("edit"));
 
-      elementsContainer.removeEventListener("click", handleClick);
-    };
-    elementsContainer.addEventListener("click", handleClick);
+    //   elementsContainer.removeEventListener("click", handleClick);
+    // };
+    // elementsContainer.addEventListener("click", handleClick);
   };
 
   const addPointMode = () => {
-    const elementsContainer = document.getElementById(
-      "elements-container"
-    ) as HTMLDivElement;
     dispatch(setMode("set_point"));
-    const { top, left } = elementsContainer.getBoundingClientRect();
-    const handleClick = (e: MouseEvent) => {
-      const x0 = e.clientX;
-      const y0 = e.clientY;
-      const x = (x0 - left) / scale;
-      const y = (y0 - top) / scale;
-      dispatch(addPoint({ x, y }));
-      dispatch(setMode("edit"));
-      elementsContainer.removeEventListener("click", handleClick);
-    };
-    elementsContainer.addEventListener("click", handleClick);
+    // const handleClick = (e: MouseEvent) => {
+    //   dispatch(addPointByClick());
+    //   dispatch(setMode("edit"));
+    //   elementsContainer.removeEventListener("click", handleClick);
+    // };
+    // elementsContainer.addEventListener("click", handleClick);
   };
 
   const addLineMode = () => {
@@ -106,7 +105,7 @@ const Sidebar = () => {
         draft[1] = endPoint;
         draft.map((pointDraft) =>
           dispatch(
-            addPoint({
+            addPointByCoordinates({
               x: pointDraft.coordinates.x / pointDraft.appliedScale,
               y: pointDraft.coordinates.y / pointDraft.appliedScale,
             })
@@ -134,65 +133,58 @@ const Sidebar = () => {
 
   const createCircleMode = () => {
     dispatch(setMode("set_circle"));
-    const elementsContainer = document.getElementById(
-      "elements-container"
-    ) as HTMLDivElement;
-    const { top, left } = elementsContainer.getBoundingClientRect();
-    const handleClick = (e: MouseEvent) => {
-      const pointId = lastId + 1;
-      const x0 = e.clientX;
-      const y0 = e.clientY;
-      const x = (x0 - left) / scale;
-      const y = (y0 - top) / scale;
-      dispatch(addPoint({ x, y }));
-      dispatch(addCircle(pointId.toString()));
-      dispatch(setMode("edit"));
-      elementsContainer.removeEventListener("click", handleClick);
-    };
-    elementsContainer.addEventListener("click", handleClick);
+    setIsMenuOpen(false);
+    // const elementsContainer = document.getElementById(
+    //   "elements-container"
+    // ) as HTMLDivElement;
+    // const handleClick = (e: MouseEvent) => {
+    //   const pointId = lastId + 1;
+    //   dispatch(addPointByClick());
+    //   dispatch(addCircle(pointId.toString()));
+    //   dispatch(setMode("edit"));
+    //   elementsContainer.removeEventListener("click", handleClick);
+    // };
+    // elementsContainer.addEventListener("click", handleClick);
   };
 
   const addTextLineMode = () => {
-    const elementsContainer = document.getElementById(
-      "elements-container"
-    ) as HTMLDivElement;
+    // const elementsContainer = document.getElementById(
+    //   "elements-container"
+    // ) as HTMLDivElement;
     dispatch(setMode("set_textline"));
-    const { top, left } = elementsContainer.getBoundingClientRect();
-    const handleClick = (e: MouseEvent) => {
-      const x0 = e.clientX;
-      const y0 = e.clientY;
-      const x = (x0 - left) / scale;
-      const y = (y0 - top) / scale;
-      dispatch(addTextLine({ x, y }));
-      dispatch(setMode("edit"));
-      elementsContainer.removeEventListener("click", handleClick);
-    };
-    elementsContainer.addEventListener("click", handleClick);
+    setIsMenuOpen(false);
+    // const { top, left } = elementsContainer.getBoundingClientRect();
+    // const handleClick = (e: MouseEvent) => {
+    //   const x0 = e.clientX;
+    //   const y0 = e.clientY;
+    //   const x = (x0 - left) / scale;
+    //   const y = (y0 - top) / scale;
+    //   dispatch(addTextLine({ x, y }));
+    //   dispatch(setMode("edit"));
+    //   elementsContainer.removeEventListener("click", handleClick);
+    // };
+    // elementsContainer.addEventListener("click", handleClick);
   };
 
   const createTriangleMode = () => {
     dispatch(setMode("set_triangle"));
     setIsMenuOpen(true);
-    const elementsContainer = document.getElementById(
-      "elements-container"
-    ) as HTMLDivElement;
-    const { top, left } = elementsContainer.getBoundingClientRect();
-    const handleClick = (e: MouseEvent) => {
-      const pointId = lastId + 1;
-      const x0 = e.clientX;
-      const y0 = e.clientY;
-      const x = (x0 - left) / scale;
-      const y = (y0 - top) / scale;
-      dispatch(addPoint({ x, y }));
-      dispatch(addTriangle(pointId.toString()));
-      dispatch(setMode("edit"));
-      elementsContainer.removeEventListener("click", handleClick);
-    };
-    elementsContainer.addEventListener("click", handleClick);
+    // const elementsContainer = document.getElementById(
+    //   "elements-container"
+    // ) as HTMLDivElement;
+    // const { top, left } = elementsContainer.getBoundingClientRect();
+    // const handleClick = (e: MouseEvent) => {
+    //   const pointId = lastId + 1;
+    //   dispatch(addPointByClick());
+    //   dispatch(addTriangle(pointId.toString()));
+    //   dispatch(setMode("edit"));
+    //   elementsContainer.removeEventListener("click", handleClick);
+    // };
+    // elementsContainer.addEventListener("click", handleClick);
   };
 
   return (
-    <StyledSB>
+    <StyledSB onMouseOver={() => dispatch(setMinibarMsg(minibarMsg.Empty))}>
       <div className="conteiner show-animate">
         <button onClick={() => dispatch(closeSB())}>Collapse SB</button>
         <section className="sb-section">
@@ -204,7 +196,7 @@ const Sidebar = () => {
             <li onClick={createTriangleMode}>Triangle</li>
             <li onClick={addLineMode}>Line</li>
             <li onClick={addPointMode}>Point</li>
-            <li onClick={addTextLineMode}>Text line</li>
+            <li onClick={addTextLineMode}>Text label</li>
             <li>Text block</li>
           </ul>
         </section>

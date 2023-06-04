@@ -15,6 +15,7 @@ import {
   selectedIdsType,
   APPositions,
   ChartTriangle,
+  PointChild,
 } from "./elementsTypes";
 
 const emptySelection: selectedIdsType = {
@@ -28,6 +29,7 @@ const emptySelection: selectedIdsType = {
 };
 
 const initialState: ElementsState = {
+  mouseCoordinates: { x: 0, y: 0 },
   lastId: 0,
   draft: [],
   connection_type: "straight",
@@ -57,7 +59,41 @@ const elementsSlice = createSlice({
   name: "elements",
   initialState,
   reducers: {
+    setMouseCoordinates: (
+      state,
+      { payload }: PayloadAction<PointCoordinates>
+    ) => {
+      state.mouseCoordinates = payload;
+    },
     // nodes
+    addNodeByClick: (state) => {
+      const left = state.mouseCoordinates.x - 0.5 * state.node_size.w;
+      const top = state.mouseCoordinates.y - 0.5 * state.node_size.h;
+      state.lastId += 1;
+      const nodeId = state.lastId.toString();
+      const newNode: ChartNode = {
+        id: nodeId,
+        type: "node",
+        title: "New node",
+        note: "",
+        coordinates: { left, top },
+      };
+      state.elements.nodes = [...state.elements.nodes, newNode];
+
+      anchorPointPositions.map((position) => {
+        state.lastId += 1;
+        const newAnchorPoint: AnchorPoint = {
+          id: state.lastId.toString(),
+          parentNodeId: nodeId,
+          position,
+          type: "anchor_point",
+        };
+        state.elements.anchor_points = [
+          ...state.elements.anchor_points,
+          newAnchorPoint,
+        ];
+      });
+    },
     addNode: (state, action: PayloadAction<{ left: number; top: number }>) => {
       const { left, top } = action.payload;
       state.lastId += 1;
@@ -107,13 +143,24 @@ const elementsSlice = createSlice({
       });
     },
     //points
-    addPoint: (state, action: PayloadAction<PointCoordinates>) => {
+    addPointByClick: (state) => {
+      state.lastId += 1;
+      const newPoint: ChartPoint = {
+        id: state.lastId.toString(),
+        coordinates: state.mouseCoordinates,
+        type: "point",
+        linkedTo: [],
+      };
+      state.elements.points = [...state.elements.points, newPoint];
+    },
+    addPointByCoordinates: (state, action: PayloadAction<PointCoordinates>) => {
       const { x, y } = action.payload;
       state.lastId += 1;
       const newPoint: ChartPoint = {
         id: state.lastId.toString(),
         coordinates: { x, y },
         type: "point",
+        linkedTo: [],
       };
       state.elements.points = [...state.elements.points, newPoint];
     },
@@ -161,6 +208,17 @@ const elementsSlice = createSlice({
       state.elements.lines = [...state.elements.lines, newLine];
     },
     //texts
+    addTextLineByClick: (state) => {
+      state.lastId += 1;
+      const { x, y } = state.mouseCoordinates;
+      const newTextLine: TextElement = {
+        id: state.lastId.toString(),
+        type: "text_line",
+        value: "",
+        coordinates: { left: x, top: y },
+      };
+      state.elements.texts = [...state.elements.texts, newTextLine];
+    },
     addTextLine: (state, action: PayloadAction<PointCoordinates>) => {
       const { x, y } = action.payload;
       state.lastId += 1;
@@ -238,6 +296,18 @@ const elementsSlice = createSlice({
             turnCoordinate: d,
           },
         ];
+        state.elements.points = state.elements.points.map((point) => {
+          if ([begPoint, endPoint].includes(point.id)) {
+            return {
+              ...point,
+              linkedTo: [
+                ...point.linkedTo,
+                { connection: state.lastId.toString() },
+              ],
+            };
+          }
+          return point;
+        });
       }
     },
     setBrokenLineTurnCoord: (
@@ -255,6 +325,28 @@ const elementsSlice = createSlice({
       );
     },
     //shapes
+    addCircleByClick: (state) => {
+      state.lastId += 1;
+      const originPointId = state.lastId.toString();
+      const newPoint: ChartPoint = {
+        id: state.lastId.toString(),
+        coordinates: state.mouseCoordinates,
+        type: "point",
+        linkedTo: [{ shape: (state.lastId + 1).toString() }],
+      };
+      state.elements.points = [...state.elements.points, newPoint];
+
+      state.lastId += 1;
+      const newCircle: ChartCircle = {
+        id: state.lastId.toString(),
+        r: 20,
+        shape_name: "circle",
+        strokeColour: "main",
+        originPointId,
+        type: "shape",
+      };
+      state.elements.shapes = [...state.elements.shapes, newCircle];
+    },
     addCircle: (state, { payload }: PayloadAction<string>) => {
       state.lastId += 1;
       const newCircle: ChartCircle = {
@@ -266,6 +358,30 @@ const elementsSlice = createSlice({
         type: "shape",
       };
       state.elements.shapes = [...state.elements.shapes, newCircle];
+    },
+    addTriangleByClick: (state) => {
+      state.lastId += 1;
+      const originPointId = state.lastId.toString();
+      const newPoint: ChartPoint = {
+        id: state.lastId.toString(),
+        coordinates: state.mouseCoordinates,
+        type: "point",
+        linkedTo: [{ shape: (state.lastId + 1).toString() }],
+      };
+      state.elements.points = [...state.elements.points, newPoint];
+
+      state.lastId += 1;
+      const newTriangle: ChartTriangle = {
+        id: state.lastId.toString(),
+        r: 40,
+        shape_name: "triangle",
+        strokeColour: "main",
+        originPointId,
+        type: "shape",
+        isMirrored: false,
+        direction: state.triangle_dir,
+      };
+      state.elements.shapes = [...state.elements.shapes, newTriangle];
     },
     addTriangle: (state, { payload }: PayloadAction<string>) => {
       state.lastId += 1;
@@ -343,8 +459,36 @@ const elementsSlice = createSlice({
               return !arrayOfIds.includes(line.id);
             }
           );
-          state.elements.points = state.elements.points.filter(
-            (point) => !pointsIdsToDelete.includes(point.id)
+          // state.elements.points = state.elements.points.filter(
+          //   (point) => !pointsIdsToDelete.includes(point.id)
+          // );
+        } else if (keyOfArray === "points") {
+          state.elements[keyOfArray] = state.elements[keyOfArray].filter(
+            (point) => {
+              if (point.linkedTo !== null) {
+                point.linkedTo.forEach((child) => {
+                  const [key, value] = Object.entries(child).flat();
+                  const keyName = key as TypeOfElement;
+                  state.elements[`${keyName}s`] = state.elements[
+                    `${keyName}s`
+                  ].filter((element) => element.id !== value);
+                });
+              }
+              return !arrayOfIds.includes(point.id);
+            }
+          );
+        } else if (keyOfArray === "nodes") {
+          state.elements.anchor_points = state.elements.anchor_points.filter(
+            (apoint) => !state.selectedIds.nodes.includes(apoint.parentNodeId)
+          );
+          state.elements[keyOfArray] = state.elements[keyOfArray].filter(
+            (node) => {
+              return !arrayOfIds.includes(node.id);
+            }
+          );
+        } else {
+          state.elements[keyOfArray] = state.elements[keyOfArray].filter(
+            (element) => !arrayOfIds.includes(element.id)
           );
         }
       });
@@ -355,12 +499,16 @@ const elementsSlice = createSlice({
 export default elementsSlice.reducer;
 
 export const {
+  setMouseCoordinates,
   addNode,
+  addNodeByClick,
   setNodeCoordinates,
   renameNode,
-  addPoint,
+  addPointByClick,
+  addPointByCoordinates,
   setPointCoordinates,
   addLine,
+  addTextLineByClick,
   addTextLine,
   setTextElementValue,
   setTextCoordinates,
@@ -370,7 +518,9 @@ export const {
   setBrokenLineTurnCoord,
   addToDraft,
   clearDraft,
+  addCircleByClick,
   addCircle,
+  addTriangleByClick,
   addTriangle,
   setGlobalTriangleDir,
   clearSelection,

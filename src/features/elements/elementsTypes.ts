@@ -1,4 +1,5 @@
 export interface ElementsState {
+  mouseCoordinates: PointCoordinates;
   lastId: number;
   node_size: { w: number; h: number };
   draft: [string, JointType, PointCoordinates, APPositions | null][];
@@ -74,7 +75,12 @@ export interface PointCoordinates {
 
 export interface CPoint {
   coordinates: PointCoordinates;
+  linkedTo: PointChild[];
 }
+
+export type PointChild = {
+  [key in keyof TypeOfElement as TypeOfElement]?: string;
+};
 
 export type ChartPoint = CPoint & ChartElement;
 

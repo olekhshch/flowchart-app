@@ -1,9 +1,10 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { initialState } from "./initialState";
+import { minibarMsg } from "./minibarMsgs";
 
 const scaleValues: [0.75, 1, 1.25, 1.5, 2, 3] = [0.75, 1, 1.25, 1.5, 2, 3];
 
-type Mode =
+export type Mode =
   | "view"
   | "edit"
   | "set_node"
@@ -26,6 +27,7 @@ export interface GeneralSettingsState {
   };
   mode: Mode;
   isCanvasMoving: boolean;
+  minibarMessage: minibarMsg;
 }
 
 export const generalSlice = createSlice({
@@ -70,6 +72,9 @@ export const generalSlice = createSlice({
     setMode: (state, { payload }: PayloadAction<Mode>) => {
       state.mode = payload;
     },
+    setMinibarMsg: (state, { payload }: PayloadAction<minibarMsg>) => {
+      state.minibarMessage = payload;
+    },
   },
 });
 
@@ -85,4 +90,5 @@ export const {
   turnGridOn,
   toggleGrid,
   setMode,
+  setMinibarMsg,
 } = generalSlice.actions;
