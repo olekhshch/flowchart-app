@@ -1,5 +1,5 @@
 import React from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   deleteSelected,
   leaveSelected,
@@ -11,6 +11,8 @@ import {
 } from "../features/elements/elementsTypes";
 import LinesMenu from "./LinesMenu";
 import ConnectionsSelected from "./ConnectionsSelected";
+import { setMode } from "../features/general/generalSlice";
+import { RootState } from "../app/store";
 
 interface MenuProps {
   selectedCount: MyCountType;
@@ -26,6 +28,8 @@ type overalNumber = {
 };
 
 const GlobalSelectionMenu = ({ selectedCount }: MenuProps) => {
+  const { originPoint } = useSelector((state: RootState) => state.elements);
+
   const selectedCountEntries = Object.entries(selectedCount).filter(
     ([key]) => !["anchor_points", "overalNumber"].includes(key)
   );
@@ -45,6 +49,10 @@ const GlobalSelectionMenu = ({ selectedCount }: MenuProps) => {
     return <ConnectionsSelected />;
   }
 
+  const movingSelectedMode = () => {
+    dispatch(setMode("move_selected"));
+  };
+
   return (
     <div>
       Selected: {selectedCount.overalNumber}
@@ -54,14 +62,20 @@ const GlobalSelectionMenu = ({ selectedCount }: MenuProps) => {
           .map(([key, value]) => {
             const keyVal = key as `${TypeOfElement}s`;
             return (
-              <li className="list" onClick={() => handleClick(keyVal)}>
+              <li
+                key={keyVal}
+                className="list"
+                onClick={() => handleClick(keyVal)}
+              >
                 {key}: {value}
               </li>
             );
           })}
       </ul>
       <ul>
-        <li className="list">Move</li>
+        <li className="list" onClick={movingSelectedMode}>
+          Move
+        </li>
         <li className="list">Copy</li>
         <li className="list" onClick={() => dispatch(deleteSelected())}>
           Delete

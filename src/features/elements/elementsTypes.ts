@@ -1,14 +1,23 @@
 export interface ElementsState {
   mouseCoordinates: PointCoordinates;
+  originPoint: PointCoordinates;
+  isFirstClicked: boolean;
   lastId: number;
   node_size: { w: number; h: number };
-  draft: [string, JointType, PointCoordinates, APPositions | null][];
+  draft: StateDraft;
   connection_type: ConnectionType;
   connection_dir: BrokenLineDirection;
   triangle_dir: APPositions;
   selectedIds: selectedIdsType;
   elements: ElementsStore & ElementsStoreKeys;
 }
+
+export type StateDraft = [
+  string,
+  JointType,
+  PointCoordinates,
+  APPositions | null
+][];
 
 interface ElementsStore {
   nodes: ChartNode[];
@@ -79,7 +88,8 @@ export interface CPoint {
 }
 
 export type PointChild = {
-  [key in keyof TypeOfElement as TypeOfElement]?: string;
+  elementType: TypeOfElement;
+  elementId: string;
 };
 
 export type ChartPoint = CPoint & ChartElement;
@@ -93,6 +103,8 @@ export interface ChartLine {
   endPointId: string;
   colour: string;
   strokeWidth: number;
+  arrowBeg: boolean;
+  arrowEnd: boolean;
 }
 
 export interface TextElement {
@@ -139,4 +151,6 @@ export interface ChartConnection {
   endPosition: APPositions | null;
   direction: BrokenLineDirection;
   turnCoordinate: number;
+  arrowBeg: boolean;
+  arrowEnd: boolean;
 }

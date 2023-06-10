@@ -16,7 +16,12 @@ import {
   APPositions,
   ChartTriangle,
   PointChild,
+  ChartConnection,
 } from "./elementsTypes";
+
+import { movePoint } from "./movePoint";
+import { removeLink } from "./removeLink";
+import { setElementCoordinates } from "./moveElement";
 
 const emptySelection: selectedIdsType = {
   nodes: [],
@@ -30,6 +35,8 @@ const emptySelection: selectedIdsType = {
 
 const initialState: ElementsState = {
   mouseCoordinates: { x: 0, y: 0 },
+  originPoint: { x: 0, y: 0 },
+  isFirstClicked: false,
   lastId: 0,
   draft: [],
   connection_type: "straight",
@@ -64,6 +71,12 @@ const elementsSlice = createSlice({
       { payload }: PayloadAction<PointCoordinates>
     ) => {
       state.mouseCoordinates = payload;
+    },
+    setOriginCoordinates: (state) => {
+      state.originPoint = { ...state.mouseCoordinates };
+    },
+    setIsFirstClicked: (state, { payload }: PayloadAction<boolean>) => {
+      state.isFirstClicked = payload;
     },
     // nodes
     addNodeByClick: (state) => {
@@ -197,15 +210,129 @@ const elementsSlice = createSlice({
     ) => {
       const { beginningPointId, endPointId, colour } = action.payload;
       state.lastId += 1;
+      const lineId = state.lastId.toString();
       const newLine: ChartLine & ChartElement = {
         type: "line",
         beginningPointId,
         endPointId,
         colour,
         strokeWidth: 2,
-        id: state.lastId.toString(),
+        id: lineId,
+        arrowBeg: false,
+        arrowEnd: false,
       };
       state.elements.lines = [...state.elements.lines, newLine];
+      state.elements.points = state.elements.points.map((point) => {
+        if (point.id === beginningPointId || point.id === endPointId) {
+          const newLink = {
+            elementId: lineId,
+            elementType: "line",
+          } as PointChild;
+          return {
+            ...point,
+            linkedTo: [...point.linkedTo, newLink],
+          };
+        }
+        return point;
+      });
+    },
+    setLineByClick: (state) => {
+      state.lastId += 1;
+      const beginningPointId = state.lastId.toString();
+
+      const newBegPoint: ChartPoint = {
+        id: beginningPointId,
+        coordinates: state.originPoint,
+        type: "point",
+        linkedTo: [
+          { elementId: (state.lastId + 2).toString(), elementType: "line" },
+        ],
+      };
+
+      state.lastId += 1;
+      const endPointId = state.lastId.toString();
+
+      const newEndPoint: ChartPoint = {
+        id: endPointId,
+        coordinates: state.mouseCoordinates,
+        type: "point",
+        linkedTo: [
+          { elementId: (state.lastId + 1).toString(), elementType: "line" },
+        ],
+      };
+
+      state.elements.points = [
+        ...state.elements.points,
+        newBegPoint,
+        newEndPoint,
+      ];
+      state.lastId += 1;
+      const lineId = state.lastId.toString();
+
+      const newLine: ChartLine & ChartElement = {
+        type: "line",
+        beginningPointId,
+        endPointId,
+        colour: "var(--main)",
+        strokeWidth: 2,
+        id: lineId,
+        arrowBeg: false,
+        arrowEnd: false,
+      };
+
+      state.elements.lines = [...state.elements.lines, newLine];
+    },
+    setBegArrow: (
+      state,
+      {
+        payload,
+      }: PayloadAction<{
+        ids: string[];
+        isOn: boolean;
+        elementType: "line" | "connection";
+      }>
+    ) => {
+      state.elements[`${payload.elementType}s`] = state.elements[
+        `${payload.elementType}s`
+      ].map((element) => {
+        if (payload.ids.includes(element.id)) {
+          if (payload.elementType === "connection") {
+            const connection = element as ChartConnection;
+            return { ...connection, arrowBeg: payload.isOn } as ChartConnection;
+          } else if (payload.elementType === "line") {
+            const line = element as ChartLine & ChartElement;
+            return { ...line, arrowBeg: payload.isOn } as ChartLine &
+              ChartElement;
+          }
+        }
+        return element;
+      });
+    },
+    setEndArrow: (
+      state,
+      {
+        payload,
+      }: PayloadAction<{
+        ids: string[];
+        isOn: boolean;
+        elementType: "line" | "connection";
+      }>
+    ) => {
+      state.elements[`${payload.elementType}s`] = state.elements[
+        `${payload.elementType}s`
+      ].map((element) => {
+        if (payload.ids.includes(element.id)) {
+          if (payload.elementType === "connection") {
+            const connection = element as ChartConnection;
+            return { ...connection, arrowEnd: payload.isOn } as ChartConnection;
+          } else if (payload.elementType === "line") {
+            const line = element as ChartLine & ChartElement;
+            return { ...line, arrowEnd: payload.isOn } as ChartLine &
+              ChartElement;
+          }
+        }
+        return element;
+      });
     },
     //texts
     addTextLineByClick: (state) => {
@@ -281,29 +408,34 @@ const elementsSlice = createSlice({
           state.connection_dir === "H"
             ? (BegCoordinates.y + EndCoordinates.y) / 2
             : (BegCoordinates.x + EndCoordinates.x) / 2;
+        const connectionId = state.lastId.toString();
+        const newConnection: ChartConnection = {
+          id: connectionId,
+          beginningPointId: begPoint,
+          endPointId: endPoint,
+          begType,
+          endType,
+          line_type: state.connection_type,
+          begPosition,
+          endPosition,
+          direction: state.connection_dir,
+          turnCoordinate: d,
+          arrowBeg: false,
+          arrowEnd: true,
+        };
         state.elements.connections = [
           ...state.elements.connections,
-          {
-            id: state.lastId.toString(),
-            beginningPointId: begPoint,
-            endPointId: endPoint,
-            begType,
-            endType,
-            line_type: state.connection_type,
-            begPosition,
-            endPosition,
-            direction: state.connection_dir,
-            turnCoordinate: d,
-          },
+          newConnection,
         ];
         state.elements.points = state.elements.points.map((point) => {
           if ([begPoint, endPoint].includes(point.id)) {
+            const newLink = {
+              elementId: connectionId,
+              elementType: "line",
+            } as PointChild;
             return {
               ...point,
-              linkedTo: [
-                ...point.linkedTo,
-                { connection: state.lastId.toString() },
-              ],
+              linkedTo: [...point.linkedTo, newLink],
             };
           }
           return point;
@@ -332,7 +464,9 @@ const elementsSlice = createSlice({
         id: state.lastId.toString(),
         coordinates: state.mouseCoordinates,
         type: "point",
-        linkedTo: [{ shape: (state.lastId + 1).toString() }],
+        linkedTo: [
+          { elementId: (state.lastId + 1).toString(), elementType: "shape" },
+        ],
       };
       state.elements.points = [...state.elements.points, newPoint];
 
@@ -366,7 +500,9 @@ const elementsSlice = createSlice({
         id: state.lastId.toString(),
         coordinates: state.mouseCoordinates,
         type: "point",
-        linkedTo: [{ shape: (state.lastId + 1).toString() }],
+        linkedTo: [
+          { elementId: (state.lastId + 1).toString(), elementType: "shape" },
+        ],
       };
       state.elements.points = [...state.elements.points, newPoint];
 
@@ -401,7 +537,6 @@ const elementsSlice = createSlice({
       state.triangle_dir = payload;
     },
     addToDraft: (state, { payload }) => {
-      console.log(payload);
       state.draft = [...state.draft, payload];
     },
     clearDraft: (state) => {
@@ -448,50 +583,159 @@ const elementsSlice = createSlice({
       const selectedEntries = Object.entries(state.selectedIds);
       selectedEntries.forEach(([key, arrayOfIds]) => {
         const keyOfArray = key as `${TypeOfElement}s`;
-        if (keyOfArray === "lines") {
-          let pointsIdsToDelete: string[] = [];
-          state.elements[keyOfArray] = state.elements[keyOfArray].filter(
-            (line) => {
-              if (arrayOfIds.includes(line.id)) {
-                pointsIdsToDelete.push(line.beginningPointId);
-                pointsIdsToDelete.push(line.endPointId);
-              }
-              return !arrayOfIds.includes(line.id);
+        if (keyOfArray === "points") {
+          state.elements.points = state.elements.points.filter((point) => {
+            if (arrayOfIds.includes(point.id)) {
+              point.linkedTo.forEach((child) => {
+                const { elementId, elementType } = child;
+                state.elements[`${elementType}s`] = state.elements[
+                  `${elementType}s`
+                ].filter((element: ChartElement) => element.id !== elementId);
+              });
             }
-          );
-          // state.elements.points = state.elements.points.filter(
-          //   (point) => !pointsIdsToDelete.includes(point.id)
-          // );
-        } else if (keyOfArray === "points") {
+            return !arrayOfIds.includes(point.id);
+          });
+        } else if (
+          keyOfArray === "shapes" ||
+          keyOfArray === "connections" ||
+          keyOfArray === "lines"
+        ) {
           state.elements[keyOfArray] = state.elements[keyOfArray].filter(
-            (point) => {
-              if (point.linkedTo !== null) {
-                point.linkedTo.forEach((child) => {
-                  const [key, value] = Object.entries(child).flat();
-                  const keyName = key as TypeOfElement;
-                  state.elements[`${keyName}s`] = state.elements[
-                    `${keyName}s`
-                  ].filter((element) => element.id !== value);
+            (element) => {
+              if (element.type === "shape") {
+                const shape = element as ChartCircle | ChartTriangle;
+                if (arrayOfIds.includes(shape.id)) {
+                  const { originPointId } = shape;
+                  state.elements.points = state.elements.points.map((point) => {
+                    if (point.id === originPointId) {
+                      return removeLink(point, {
+                        elementType: shape.type,
+                        elementId: shape.id,
+                      });
+                    }
+                    return point;
+                  });
+                }
+              } else if (
+                element.type === "connection" ||
+                element.type === "line"
+              ) {
+                const connection = element as
+                  | ChartConnection
+                  | (ChartLine & ChartElement);
+                const { beginningPointId, endPointId } = connection;
+                state.elements.points = state.elements.points.map((point) => {
+                  if ([beginningPointId, endPointId].includes(point.id)) {
+                    return removeLink(point, {
+                      elementId: connection.id,
+                      elementType: element.type,
+                    });
+                  }
+                  return point;
                 });
               }
-              return !arrayOfIds.includes(point.id);
-            }
-          );
-        } else if (keyOfArray === "nodes") {
-          state.elements.anchor_points = state.elements.anchor_points.filter(
-            (apoint) => !state.selectedIds.nodes.includes(apoint.parentNodeId)
-          );
-          state.elements[keyOfArray] = state.elements[keyOfArray].filter(
-            (node) => {
-              return !arrayOfIds.includes(node.id);
+              return !arrayOfIds.includes(element.id);
             }
           );
         } else {
           state.elements[keyOfArray] = state.elements[keyOfArray].filter(
-            (element) => !arrayOfIds.includes(element.id)
+            (element) => {
+              console.log(element);
+              return !arrayOfIds.includes(element.id);
+            }
           );
         }
       });
+      state.selectedIds = { ...emptySelection };
+      // selectedEntries.forEach(([key, arrayOfIds]) => {
+      //   const keyOfArray = key as `${TypeOfElement}s`;
+      //   if (keyOfArray === "lines") {
+      //     let pointsIdsToDelete: string[] = [];
+      //     state.elements[keyOfArray] = state.elements[keyOfArray].filter(
+      //       (line) => {
+      //         if (arrayOfIds.includes(line.id)) {
+      //           pointsIdsToDelete.push(line.beginningPointId);
+      //           pointsIdsToDelete.push(line.endPointId);
+      //         }
+      //         return !arrayOfIds.includes(line.id);
+      //       }
+      //     );
+      //     // state.elements.points = state.elements.points.filter(
+      //     //   (point) => !pointsIdsToDelete.includes(point.id)
+      //     // );
+      //   } else if (keyOfArray === "points") {
+      //     state.elements[keyOfArray] = state.elements[keyOfArray].filter(
+      //       (point) => {
+      //         if (point.linkedTo !== null) {
+      //           point.linkedTo.forEach((child) => {
+      //             console.log("linked to" + child);
+      //             const [key, value] = Object.entries(child).flat();
+      //             const keyName = key as TypeOfElement;
+      //             console.log(keyName);
+      //             state.elements[`${keyName}s`] = state.elements[
+      //               `${keyName}s`
+      //             ].filter((element) => element.id !== value);
+      //           });
+      //         }
+      //         return !arrayOfIds.includes(point.id);
+      //       }
+      //     );
+      //   } else if (keyOfArray === "nodes") {
+      //     state.elements.anchor_points = state.elements.anchor_points.filter(
+      //       (apoint) => !state.selectedIds.nodes.includes(apoint.parentNodeId)
+      //     );
+      //     state.elements[keyOfArray] = state.elements[keyOfArray].filter(
+      //       (node) => {
+      //         return !arrayOfIds.includes(node.id);
+      //       }
+      //     );
+      //   } else {
+      //     state.elements[keyOfArray] = state.elements[keyOfArray].filter(
+      //       (element) => {
+      //         return !arrayOfIds.includes(element.id);
+      //       }
+      //     );
+      //   }
+      // });
+    },
+    moveSelected: (state) => {
+      const dx = state.mouseCoordinates.x - state.originPoint.x;
+      const dy = state.mouseCoordinates.y - state.originPoint.y;
+      const selectedEntries = Object.entries(state.selectedIds);
+      selectedEntries.forEach(([key, arrayOfIds]) => {
+        const keyName = key as `${TypeOfElement}s`;
+        if (keyName === "nodes") {
+          state.elements[keyName] = state.elements[keyName].map((element) => {
+            if (arrayOfIds.includes(element.id)) {
+              return setElementCoordinates(element, dx, dy)!;
+            }
+            return element;
+          });
+        }
+      });
+      // selectedEntries.forEach(([key, arrayOfIds]) => {
+      //   const keyOfArray = key as `${TypeOfElement}s`;
+      //   if (keyOfArray === "lines") {
+      //     state.elements.lines.map((line) => {
+      //       if (arrayOfIds.includes(line.id)) {
+      //         const { beginningPointId, endPointId } = line;
+      //         state.elements.points = state.elements.points.map((point) => {
+      //           if ([beginningPointId, endPointId].includes(point.id)) {
+      //             return movePoint(point, { dx, dy });
+      //           }
+      //           return point;
+      //         });
+      //       }
+      //     });
+      //   } else if (keyOfArray === "points") {
+      //     state.elements.points.map((point) => {
+      //       if (arrayOfIds.includes(point.id)) {
+      //         return movePoint(point, { dx, dy });
+      //       }
+      //       return point;
+      //     });
+      //   }
+      // });
     },
   },
 });
@@ -500,6 +744,8 @@ export default elementsSlice.reducer;
 
 export const {
   setMouseCoordinates,
+  setOriginCoordinates,
+  setIsFirstClicked,
   addNode,
   addNodeByClick,
   setNodeCoordinates,
@@ -507,7 +753,10 @@ export const {
   addPointByClick,
   addPointByCoordinates,
   setPointCoordinates,
+  setLineByClick,
   addLine,
+  setBegArrow,
+  setEndArrow,
   addTextLineByClick,
   addTextLine,
   setTextElementValue,
@@ -528,4 +777,5 @@ export const {
   deselectElement,
   leaveSelected,
   deleteSelected,
+  moveSelected,
 } = elementsSlice.actions;

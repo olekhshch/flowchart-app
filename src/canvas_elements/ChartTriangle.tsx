@@ -36,13 +36,12 @@ const ChartTriangleEl = ({
     }
   };
 
-  const a = r * Math.cos(Math.PI / 4); //geometry :)
-  const x1 = x - a;
+  const x1 = x - r / 2;
   const y1 = y;
 
   const vector = {
-    x: a,
-    y: a,
+    x: r / 2,
+    y: r / 2,
   };
 
   const x2 = x1 + 1 * vector.x;

@@ -114,6 +114,15 @@ const MenuStyled = styled.section`
     background: none;
     padding: 2px;
     color: white;
-    border: none;
+    border: 1px solid transparent;
+    border-radius: 6px;
+  }
+
+  .btn-active {
+    background-color: var(--main);
+  }
+
+  button:hover {
+    border: 1px solid var(--main);
   }
 `;

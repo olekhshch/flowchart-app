@@ -12,6 +12,7 @@ import {
   ChartPoint,
   ChartTriangle,
   JointType,
+  StateDraft,
 } from "./features/elements/elementsTypes";
 import BrokenLine from "./canvas_elements/BrokenLine";
 import ChartCircle from "./canvas_elements/ChartCircle";
@@ -20,8 +21,13 @@ import {
   addNodeByClick,
   addPointByClick,
   addTextLineByClick,
+  addToDraft,
   addTriangleByClick,
+  clearDraft,
   clearSelection,
+  setIsFirstClicked,
+  setLineByClick,
+  setOriginCoordinates,
 } from "./features/elements/elementsSlice";
 import ChartTriangleEl from "./canvas_elements/ChartTriangle";
 import { MenuContext } from "./menuContext";
@@ -42,6 +48,7 @@ const CanvasElements = (props: { scale: number }) => {
     },
     node_size,
     selectedIds,
+    isFirstClicked,
   } = useSelector((state: RootState) => state.elements);
 
   const { setSelectedOnly } = useContext(MenuContext);
@@ -54,9 +61,15 @@ const CanvasElements = (props: { scale: number }) => {
 
   const dispatch = useDispatch();
 
-  const handleClick = (e: React.MouseEvent, mode: Mode) => {
-    dispatch(clearSelection());
-    setSelectedOnly(null);
+  const handleClick = (
+    e: React.MouseEvent,
+    mode: Mode,
+    isFirstClicked: boolean
+  ) => {
+    if (!e.shiftKey) {
+      dispatch(clearSelection());
+      setSelectedOnly(null);
+    }
     if (mode === "set_point") {
       dispatch(addPointByClick());
     } else if (mode === "set_node") {
@@ -67,9 +80,21 @@ const CanvasElements = (props: { scale: number }) => {
       dispatch(addCircleByClick());
     } else if (mode === "set_triangle") {
       dispatch(addTriangleByClick());
+    } else if (mode === "set_line") {
+      if (!isFirstClicked) {
+        dispatch(setIsFirstClicked(true));
+        dispatch(setOriginCoordinates());
+      } else {
+        dispatch(setLineByClick());
+        dispatch(setIsFirstClicked(false));
+        dispatch(setMode("edit"));
+      }
     }
 
-    if (mode !== "view") {
+    if (
+      (!["view", "set_line"].includes(mode) && !e.shiftKey) ||
+      e.button === 2
+    ) {
       dispatch(setMode("edit"));
     }
   };
@@ -111,9 +136,10 @@ const CanvasElements = (props: { scale: number }) => {
         return <></>;
       })}
       <svg
+        id="svg-cont"
         width="100%"
         height="100%"
-        onClick={(e) => handleClick(e, currentMode)}
+        onClick={(e) => handleClick(e, currentMode, isFirstClicked)}
       >
         {connections.map((connection) => {
           let begPoint: ChartPoint = {
@@ -137,6 +163,8 @@ const CanvasElements = (props: { scale: number }) => {
             endPosition,
             direction,
             turnCoordinate,
+            arrowBeg,
+            arrowEnd,
           } = connection;
           if (connection.line_type === "straight") {
             if (begType === "anchor_point") {
@@ -220,6 +248,8 @@ const CanvasElements = (props: { scale: number }) => {
                   endPoint={endPoint}
                   elementId={connection.id}
                   elementType="connection"
+                  arrowBeg={arrowBeg}
+                  arrowEnd={arrowEnd}
                 />
               );
             }
@@ -323,6 +353,8 @@ const CanvasElements = (props: { scale: number }) => {
               endPoint={endPoint}
               elementId={line.id}
               elementType="line"
+              arrowBeg={false}
+              arrowEnd={false}
             />
           );
         })}

@@ -20,6 +20,11 @@ import {
 } from "./features/elements/elementsSlice";
 import { MenuContext } from "./menuContext";
 import { minibarMsg } from "./features/general/minibarMsgs";
+import NodeIcon from "./icons/NodeIcon";
+import CircleIcon from "./icons/CircleIcon";
+import LineIcon from "./icons/LineIcon";
+import TriangleIcon from "./icons/TriangleIcon";
+import ConnectionIcon from "./icons/ConnectionIcon";
 
 type PointDraft = {
   id: string;
@@ -80,50 +85,51 @@ const Sidebar = () => {
   };
 
   const addLineMode = () => {
-    const elementsContainer = document.getElementById(
-      "elements-container"
-    ) as HTMLDivElement;
-    const { top, left } = elementsContainer.getBoundingClientRect();
-    const draft: PointDraft[] = [];
-    const handleFirstClick = (e: MouseEvent) => {
-      const scale1 = scale;
-      const begginingPoint: PointDraft = {
-        id: (lastId + 1).toString(),
-        coordinates: { x: e.clientX - left, y: e.clientY - top },
-        appliedScale: scale1,
-      };
-      draft[0] = begginingPoint;
+    dispatch(setMode("set_line"));
+    // const elementsContainer = document.getElementById(
+    //   "elements-container"
+    // ) as HTMLDivElement;
+    // const { top, left } = elementsContainer.getBoundingClientRect();
+    // const draft: PointDraft[] = [];
+    // const handleFirstClick = (e: MouseEvent) => {
+    //   const scale1 = scale;
+    //   const begginingPoint: PointDraft = {
+    //     id: (lastId + 1).toString(),
+    //     coordinates: { x: e.clientX - left, y: e.clientY - top },
+    //     appliedScale: scale1,
+    //   };
+    //   draft[0] = begginingPoint;
 
-      const handleSecondClick = (ev: MouseEvent) => {
-        const scale2 = scale;
-        const { top, left } = elementsContainer.getBoundingClientRect();
-        const endPoint: PointDraft = {
-          id: (lastId + 2).toString(),
-          coordinates: { x: ev.clientX - left, y: ev.clientY - top },
-          appliedScale: scale2,
-        };
-        draft[1] = endPoint;
-        draft.map((pointDraft) =>
-          dispatch(
-            addPointByCoordinates({
-              x: pointDraft.coordinates.x / pointDraft.appliedScale,
-              y: pointDraft.coordinates.y / pointDraft.appliedScale,
-            })
-          )
-        );
-        dispatch(
-          addLine({
-            beginningPointId: (lastId + 1).toString(),
-            endPointId: (lastId + 2).toString(),
-            colour: "red",
-          })
-        );
-        elementsContainer.removeEventListener("click", handleSecondClick);
-      };
-      elementsContainer.addEventListener("click", handleSecondClick);
-      elementsContainer.removeEventListener("click", handleFirstClick);
-    };
-    elementsContainer.addEventListener("click", handleFirstClick);
+    //   const handleSecondClick = (ev: MouseEvent) => {
+    //     const scale2 = scale;
+    //     const { top, left } = elementsContainer.getBoundingClientRect();
+    //     const endPoint: PointDraft = {
+    //       id: (lastId + 2).toString(),
+    //       coordinates: { x: ev.clientX - left, y: ev.clientY - top },
+    //       appliedScale: scale2,
+    //     };
+    //     draft[1] = endPoint;
+    //     draft.map((pointDraft) =>
+    //       dispatch(
+    //         addPointByCoordinates({
+    //           x: pointDraft.coordinates.x / pointDraft.appliedScale,
+    //           y: pointDraft.coordinates.y / pointDraft.appliedScale,
+    //         })
+    //       )
+    //     );
+    //     dispatch(
+    //       addLine({
+    //         beginningPointId: (lastId + 1).toString(),
+    //         endPointId: (lastId + 2).toString(),
+    //         colour: "red",
+    //       })
+    //     );
+    //     elementsContainer.removeEventListener("click", handleSecondClick);
+    //   };
+    //   elementsContainer.addEventListener("click", handleSecondClick);
+    //   elementsContainer.removeEventListener("click", handleFirstClick);
+    // };
+    // elementsContainer.addEventListener("click", handleFirstClick);
   };
 
   const connectPointsMode = () => {
@@ -190,13 +196,34 @@ const Sidebar = () => {
         <section className="sb-section">
           <h3>Flowchart elements</h3>
           <ul>
-            <li onClick={addNodeMode}>Node</li>
-            <li onClick={connectPointsMode}>Connection</li>
-            <li onClick={createCircleMode}>Circle</li>
-            <li onClick={createTriangleMode}>Triangle</li>
-            <li onClick={addLineMode}>Line</li>
-            <li onClick={addPointMode}>Point</li>
-            <li onClick={addTextLineMode}>Text label</li>
+            <li onClick={addNodeMode}>
+              <NodeIcon colour="white" iconSize={32} isTextLabel={false} />
+              <span className="sb-list-text">Node</span>
+            </li>
+            <li onClick={connectPointsMode}>
+              <ConnectionIcon colour="white" iconSize={32} />
+              <span className="sb-list-text">Connection</span>
+            </li>
+            <li onClick={createCircleMode}>
+              <CircleIcon colour="white" iconSize={32} isPoint={false} />
+              <span className="sb-list-text">Circle</span>
+            </li>
+            <li onClick={createTriangleMode}>
+              <TriangleIcon colour="white" iconSize={32} />
+              <span className="sb-list-text">Triangle</span>
+            </li>
+            <li onClick={addLineMode}>
+              <LineIcon colour="white" iconSize={32} />
+              <span className="sb-list-text">Line</span>
+            </li>
+            <li onClick={addPointMode}>
+              <CircleIcon colour="white" iconSize={32} isPoint={true} />
+              <span className="sb-list-text">Point</span>
+            </li>
+            <li onClick={addTextLineMode}>
+              <NodeIcon colour="white" iconSize={32} isTextLabel={true} />
+              <span className="sb-list-text">Text label</span>
+            </li>
             <li>Text block</li>
           </ul>
         </section>
@@ -258,6 +285,19 @@ const StyledSB = styled.aside`
 
   .show-animate {
     animation: show 1s forwards;
+  }
+
+  /* .icon {
+    transform: translateY(2px);
+  } */
+
+  li {
+    display: flex;
+    gap: 2px;
+  }
+
+  .sb-list-text {
+    margin: auto 0;
   }
 `;
 

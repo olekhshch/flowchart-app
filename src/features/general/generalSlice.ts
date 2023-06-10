@@ -13,7 +13,8 @@ export type Mode =
   | "set_circle"
   | "set_triangle"
   | "set_textline"
-  | "connect_points";
+  | "connect_points"
+  | "move_selected";
 
 export interface GeneralSettingsState {
   isSBCollapsed: boolean;

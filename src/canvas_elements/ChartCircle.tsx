@@ -22,7 +22,8 @@ const ChartCircle = ({ x, y, r, id, pointId, elementType }: CircleProps) => {
   const { scale } = useSelector((state: RootState) => state.general);
   const dispatch = useDispatch();
 
-  const { setIsMenuOpen } = React.useContext(MenuContext);
+  const { setIsMenuOpen, selectedOnly, setSelectedOnly } =
+    React.useContext(MenuContext);
 
   const handleClick = (e: React.MouseEvent) => {
     if (e.shiftKey === false) {
@@ -31,6 +32,9 @@ const ChartCircle = ({ x, y, r, id, pointId, elementType }: CircleProps) => {
     dispatch(selectElement({ elementId: id, elementType: "shape" }));
     dispatch(selectElement({ elementId: pointId, elementType: "point" }));
     setIsMenuOpen(true);
+    if (selectedOnly !== "shapes") {
+      setSelectedOnly(null);
+    }
     e.stopPropagation();
   };
 

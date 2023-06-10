@@ -29,7 +29,8 @@ interface styledProps {
 }
 
 const ChartPointEl = ({ point, scale }: CPProps) => {
-  const { setIsMenuOpen } = useContext(MenuContext);
+  const { setIsMenuOpen, selectedOnly, setSelectedOnly } =
+    useContext(MenuContext);
 
   const dispatch = useDispatch();
 
@@ -103,6 +104,9 @@ const ChartPointEl = ({ point, scale }: CPProps) => {
           selectElement({ elementId: point.id, elementType: point.type })
         );
         setIsMenuOpen(true);
+        if (selectedOnly !== "points") {
+          setSelectedOnly(null);
+        }
       } else if (e.ctrlKey) {
         dispatch(
           deselectElement({ elementId: point.id, elementType: point.type })

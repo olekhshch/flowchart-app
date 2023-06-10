@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "./app/store";
 import { setMouseCoordinates } from "./features/elements/elementsSlice";
 import { setMode } from "./features/general/generalSlice";
+import { moveSelectedMouseMove } from "./functions/moveSelectedMouseMove";
 
 const CanvasPreview = () => {
   const {
@@ -12,9 +13,8 @@ const CanvasPreview = () => {
     canvasCoordinates: { left, top },
   } = useSelector((state: RootState) => state.general);
 
-  const { mouseCoordinates, node_size } = useSelector(
-    (state: RootState) => state.elements
-  );
+  const { mouseCoordinates, node_size, isFirstClicked, originPoint } =
+    useSelector((state: RootState) => state.elements);
 
   const dispatch = useDispatch();
 
@@ -25,7 +25,7 @@ const CanvasPreview = () => {
     c.clearRect(0, 0, canvasSize * scale, canvasSize * scale);
   };
 
-  const setCanvasCoordinatesAndPreview = (e: MouseEvent) => {
+  const handleMouseMove = (e: MouseEvent) => {
     const x0 = e.clientX;
     const y0 = e.clientY;
     const x = (x0 - left) / scale;
@@ -41,7 +41,12 @@ const CanvasPreview = () => {
       previewTextLine();
     } else if (mode === "set_circle") {
       previewCircle();
+    } else if (mode === "set_line") {
+      previewLine();
     }
+    // } else if (mode === "move_selected") {
+    //   moveSelectedMouseMove(dispatch);
+    // }
   };
 
   const previewPoint = () => {
@@ -84,6 +89,21 @@ const CanvasPreview = () => {
     c.stroke();
   };
 
+  const previewLine = () => {
+    const c = canvasPreview.current!.getContext("2d")!;
+    clearPreview();
+    c.beginPath();
+    if (isFirstClicked) {
+      c.moveTo(originPoint.x * scale, originPoint.y * scale);
+      c.lineTo(mouseCoordinates.x * scale, mouseCoordinates.y * scale);
+      c.closePath();
+      c.strokeStyle = "orange";
+      c.stroke();
+    } else {
+      previewPoint();
+    }
+  };
+
   const previewTextLine = () => {
     const c = canvasPreview.current!.getContext("2d")!;
     clearPreview();
@@ -116,10 +136,10 @@ const CanvasPreview = () => {
   };
 
   useEffect(() => {
-    window.addEventListener("mousemove", setCanvasCoordinatesAndPreview);
+    window.addEventListener("mousemove", handleMouseMove);
     mode === "edit" && clearPreview();
     return () => {
-      window.removeEventListener("mousemove", setCanvasCoordinatesAndPreview);
+      window.removeEventListener("mousemove", handleMouseMove);
     };
   }, [mouseCoordinates, mode]);
 
