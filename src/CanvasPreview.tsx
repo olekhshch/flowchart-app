@@ -41,7 +41,7 @@ const CanvasPreview = () => {
       previewTextLine();
     } else if (mode === "set_circle") {
       previewCircle();
-    } else if (mode === "set_line") {
+    } else if (mode === "set_line" || mode === "move_selected") {
       previewLine();
     }
     // } else if (mode === "move_selected") {

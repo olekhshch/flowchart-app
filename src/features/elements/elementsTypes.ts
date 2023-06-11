@@ -73,6 +73,7 @@ export interface APoint {
   id: string;
   parentNodeId: string;
   position: APPositions;
+  connects: PointChild[];
 }
 
 export type AnchorPoint = APoint & ChartElement;

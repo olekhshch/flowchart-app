@@ -100,6 +100,7 @@ const elementsSlice = createSlice({
           parentNodeId: nodeId,
           position,
           type: "anchor_point",
+          connects: [],
         };
         state.elements.anchor_points = [
           ...state.elements.anchor_points,
@@ -127,6 +128,7 @@ const elementsSlice = createSlice({
           parentNodeId: nodeId,
           position,
           type: "anchor_point",
+          connects: [],
         };
         state.elements.anchor_points = [
           ...state.elements.anchor_points,
@@ -431,7 +433,7 @@ const elementsSlice = createSlice({
           if ([begPoint, endPoint].includes(point.id)) {
             const newLink = {
               elementId: connectionId,
-              elementType: "line",
+              elementType: "connection",
             } as PointChild;
             return {
               ...point,
@@ -440,6 +442,26 @@ const elementsSlice = createSlice({
           }
           return point;
         });
+        state.elements.anchor_points = state.elements.anchor_points.map(
+          (aPoint) => {
+            if (
+              (begPoint === aPoint.parentNodeId &&
+                begPosition === aPoint.position) ||
+              (endPoint === aPoint.parentNodeId &&
+                endPosition === aPoint.position)
+            ) {
+              const newLink = {
+                elementId: connectionId,
+                elementType: "connection",
+              } as PointChild;
+              return {
+                ...aPoint,
+                connects: [...aPoint.connects, newLink],
+              };
+            }
+            return aPoint;
+          }
+        );
       }
     },
     setBrokenLineTurnCoord: (
@@ -637,10 +659,30 @@ const elementsSlice = createSlice({
               return !arrayOfIds.includes(element.id);
             }
           );
+        } else if (keyOfArray === "nodes") {
+          state.elements.nodes = state.elements.nodes.filter((node) => {
+            if (arrayOfIds.includes(node.id)) {
+              state.elements.anchor_points =
+                state.elements.anchor_points.filter((aPoint) => {
+                  if (arrayOfIds.includes(aPoint.parentNodeId)) {
+                    aPoint.connects.forEach((child) => {
+                      const { elementId, elementType } = child;
+                      const connectionType = elementType as "connection";
+                      state.elements[`${connectionType}s`] = state.elements[
+                        `${connectionType}s`
+                      ].filter(
+                        (element: ChartElement) => element.id !== elementId
+                      );
+                    });
+                  }
+                  return !arrayOfIds.includes(aPoint.parentNodeId);
+                });
+            }
+            return !arrayOfIds.includes(node.id);
+          });
         } else {
           state.elements[keyOfArray] = state.elements[keyOfArray].filter(
             (element) => {
-              console.log(element);
               return !arrayOfIds.includes(element.id);
             }
           );
