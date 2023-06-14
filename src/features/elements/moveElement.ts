@@ -1,4 +1,9 @@
-import { ChartElement, ChartNode, TypeOfElement } from "./elementsTypes";
+import {
+  ChartElement,
+  ChartNode,
+  ChartPoint,
+  TypeOfElement,
+} from "./elementsTypes";
 
 export const setElementCoordinates = (
   element: ChartElement,
@@ -13,5 +18,13 @@ export const setElementCoordinates = (
       ...thisElement,
       coordinates: { top: top + dY, left: left + dX },
     } as ChartNode;
+  }
+  if (type === "point") {
+    const thisElement = element as ChartPoint;
+    const { x, y } = thisElement.coordinates;
+    return {
+      ...thisElement,
+      coordinates: { x: x + dX, y: y + dY },
+    } as ChartPoint;
   }
 };

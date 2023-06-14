@@ -748,8 +748,33 @@ const elementsSlice = createSlice({
         const keyName = key as `${TypeOfElement}s`;
         if (keyName === "nodes") {
           state.elements[keyName] = state.elements[keyName].map((element) => {
+            console.log({ keyName, arrayOfIds: arrayOfIds.toString() });
             if (arrayOfIds.includes(element.id)) {
-              return setElementCoordinates(element, dx, dy)!;
+              return setElementCoordinates(element, dx, dy)! as ChartNode;
+            }
+            return element;
+          });
+        } else if (keyName === "points") {
+          state.elements[keyName] = state.elements[keyName].map((element) => {
+            if (arrayOfIds.includes(element.id)) {
+              return setElementCoordinates(element, dx, dy)! as ChartPoint;
+            }
+            return element;
+          });
+        } else if (keyName === "shapes") {
+          state.elements[keyName] = state.elements[keyName].map((element) => {
+            if (arrayOfIds.includes(element.id)) {
+              const { originPointId } = element;
+              if (state.selectedIds.points.includes(originPointId)) {
+                return element;
+              } else {
+                state.elements.points = state.elements.points.map((point) => {
+                  if (point.id === originPointId) {
+                    return setElementCoordinates(point, dx, dy)! as ChartPoint;
+                  }
+                  return point;
+                });
+              }
             }
             return element;
           });

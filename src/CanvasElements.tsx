@@ -25,6 +25,7 @@ import {
   addTriangleByClick,
   clearDraft,
   clearSelection,
+  moveSelected,
   setIsFirstClicked,
   setLineByClick,
   setOriginCoordinates,
@@ -54,10 +55,14 @@ const CanvasElements = (props: { scale: number }) => {
   const { setSelectedOnly } = useContext(MenuContext);
 
   const [currentMode, setCurrentMode] = useState<Mode>(mode);
+  const [isFirstClick, setIsFirstClick] = useState(isFirstClicked);
+
+  const getIsClicked = () => isFirstClick;
 
   useEffect(() => {
     setCurrentMode(mode);
-  }, [mode]);
+    setIsFirstClick(isFirstClicked);
+  }, [mode, isFirstClicked]);
 
   const dispatch = useDispatch();
 
@@ -66,10 +71,10 @@ const CanvasElements = (props: { scale: number }) => {
     mode: Mode,
     isFirstClicked: boolean
   ) => {
-    if (!e.shiftKey) {
-      dispatch(clearSelection());
-      setSelectedOnly(null);
-    }
+    // if (!e.shiftKey || mode !== "move_selected") {
+    //   dispatch(clearSelection());
+    //   setSelectedOnly(null);
+    // }
     if (mode === "set_point") {
       dispatch(addPointByClick());
     } else if (mode === "set_node") {
@@ -89,13 +94,48 @@ const CanvasElements = (props: { scale: number }) => {
         dispatch(setIsFirstClicked(false));
         dispatch(setMode("edit"));
       }
+    } else if (mode === "move_selected") {
+      console.log({ isFirstClicked });
+      if (!isFirstClicked) {
+        dispatch(setIsFirstClicked(true));
+        dispatch(setOriginCoordinates());
+        dispatch(setMinibarMsg(minibarMsg.Selected_move_2));
+      } else {
+        dispatch(moveSelected());
+        dispatch(setIsFirstClicked(false));
+        dispatch(setMode("edit"));
+        dispatch(setMinibarMsg(minibarMsg.Empty));
+      }
     }
 
     if (
-      (!["view", "set_line"].includes(mode) && !e.shiftKey) ||
+      (!["view", "set_line", "move_selected"].includes(mode) && !e.shiftKey) ||
       e.button === 2
     ) {
       dispatch(setMode("edit"));
+    }
+
+    if (!e.shiftKey && mode !== "move_selected") {
+      dispatch(clearSelection());
+      setSelectedOnly(null);
+    }
+  };
+
+  const handleMouseOver = (
+    e: React.MouseEvent,
+    mode: Mode,
+    isFirstClicked: boolean
+  ) => {
+    if (mode === "move_selected") {
+      if (getIsClicked()) {
+        dispatch(setMinibarMsg(minibarMsg.Selected_move_2));
+      } else {
+        dispatch(setMinibarMsg(minibarMsg.Selected_move_1));
+      }
+    }
+
+    if (["edit", "view"].includes(mode)) {
+      dispatch(setMinibarMsg(minibarMsg.Empty));
     }
   };
 
@@ -103,7 +143,7 @@ const CanvasElements = (props: { scale: number }) => {
     <ElementsContainer
       id="elements-container"
       mode={mode}
-      onMouseOver={() => dispatch(setMinibarMsg(minibarMsg.Empty))}
+      onMouseOver={(e) => handleMouseOver(e, currentMode, isFirstClick)}
     >
       {nodes.map((element) => {
         return (
