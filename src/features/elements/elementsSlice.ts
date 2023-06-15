@@ -778,6 +778,31 @@ const elementsSlice = createSlice({
             }
             return element;
           });
+        } else if (["lines", "connections"].includes(keyName)) {
+          state.elements[keyName] = state.elements[keyName].map((element) => {
+            if (arrayOfIds.includes(element.id)) {
+              const { beginningPointId, endPointId } = element;
+              if (
+                // checks if both points aren't already selected so they won't be moved twice
+                state.selectedIds.points.includes(beginningPointId) &&
+                state.selectedIds.points.includes(endPointId)
+              ) {
+                return element;
+              } else {
+                state.elements.points = state.elements.points.map((point) => {
+                  if (
+                    [beginningPointId, endPointId].includes(point.id) &&
+                    //checks if point is not selected so it won't be moved twice
+                    !state.selectedIds.points.includes(point.id)
+                  ) {
+                    return setElementCoordinates(point, dx, dy)! as ChartPoint;
+                  }
+                  return point;
+                });
+              }
+            }
+            return element;
+          });
         }
       });
       // selectedEntries.forEach(([key, arrayOfIds]) => {

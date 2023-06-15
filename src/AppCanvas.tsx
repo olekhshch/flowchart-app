@@ -41,12 +41,12 @@ const AppCanvas = () => {
         const newLeft0 = left + dX;
         const newTop0 = top + dY;
         const newValue = (value0: number) => {
-          if (value0 <= -window.innerWidth * 0.7) {
-            return (-window.innerWidth * 0.7) / scale;
-          }
-          if (value0 > 0) {
-            return 0;
-          }
+          // if (value0 <= -window.innerWidth * 0.7) {
+          //   return (-window.innerWidth * 0.7) / scale;
+          // }
+          // if (value0 > 0) {
+          //   return 0;
+          // }
           return value0;
         };
         dispatch(
